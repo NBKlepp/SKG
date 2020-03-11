@@ -1,4 +1,4 @@
-package kg
+package knowledgeGraph
 
 import scala.collection.immutable.Vector
 import scala.collection.mutable.HashMap
