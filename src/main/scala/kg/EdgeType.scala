@@ -2,11 +2,6 @@ package kg
 
 import scala.collection.immutable.Vector
 import scala.collection.mutable.HashMap
-import scala.reflect._
-import scalation.math.{Complex, Rational, Real}
-import scalation.math.StrO
-import scalation.math.StrO.StrNum
-import scalation.math.TimeO
     
 class EdgeType(_name : String){
 
@@ -22,27 +17,21 @@ class EdgeType(_name : String){
     //The map for getting node system id numbers from node names
     private val idMap = new HashMap[String,Int]()
 
-    //The map for getting the index of a property in the meta info vector from the property names
-    private val propertyNameMap = new HashMap[String, Int]()
-
     //The row representation of the edges of this type
-    //private val rows = Vector[Complex | Rational | Real | StrO | StrNum | TimeO ]()
-    private val rows = Vector[Complex | Rational | Real | StrNum ]()
+    private val rows = Vector[Primitive]()
 
     //The columnar representation of then edges of this EdgeType
-    //private val cols = Vector[Complex | Rational | Real | StrO | StrNum | TimeO]()
-    private val cols = Vector[Complex | Rational | Real | StrNum ]()
+    private val cols = Vector[Primitive]()
 
     /*
      * The map for getting the property values of a node from the system id for the node
      * Note that you'll need the system id for the node which you'll probably need to get
      * from the idMap 
      */
-    //private val edges = new HashMap[Int,Vector[Complex | Rational | Real | StrO | StrNum | TimeO]]()
-    private val edges = new HashMap[Int,Vector[Complex | Rational | Real | StrNum ]]()
+    private val edges = new HashMap[Int,Primitive]()
 
     //The schema (with domains) for edges of this EdgeType
-    private var meta = Vector[String]()
+    private var meta = Vector[String,PrimitiveType]()
 
     //The EdgeTypes for which this node can be either a subject or object
     private var subjectNodes = Vector[NodeType]()
