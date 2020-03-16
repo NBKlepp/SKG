@@ -1,57 +1,15 @@
 package kg
 
-import scala.collection.immutable.Vector
 import scala.collection.mutable.HashMap
-    
+
+abstract class EdgeType {} // EdgeType    
+
 class EdgeType(_name : String){
-
-    private val name = _name
-    def getName() : String = name
-
-    //The number of properties for this EdgeType
-    var nProp = 0
-
-    //The number of edges of this EdgeType
-    var nEdges = 0 
-
-    //The map for getting node system id numbers from node names
-    private val idMap = new HashMap[String,Int]()
-
-    //The row representation of the edges of this type
-    private val rows = Vector[Primitive]()
-
-    //The columnar representation of then edges of this EdgeType
-    private val cols = Vector[Primitive]()
-
-    /*
-     * The map for getting the property values of a node from the system id for the node
-     * Note that you'll need the system id for the node which you'll probably need to get
-     * from the idMap 
-     */
-    private val edges = new HashMap[Int,Primitive]()
-
-    //The schema (with domains) for edges of this EdgeType
-    private var meta = Vector[String,PrimitiveType]()
-
+    
     //The EdgeTypes for which this node can be either a subject or object
     private var subjectNodes = Vector[NodeType]()
     private var objectNodes  = Vector[NodeType]()
 
-    /*
-     * Get the meta information for this EdgeType
-     * TODO : Fix this to return a copy of the array
-     */
-    def getMeta() = meta
-
-    /*
-     * Get the number of edges of this EdgeType
-     */
-    def numEdges() = nEdges
-
-    /*
-     * Get the number of properties for this EdgeType
-     */
-    def numProperties() = nProp
     
     /*
      * The getters for the types of edges that a node of this type can
@@ -68,17 +26,6 @@ class EdgeType(_name : String){
    
     def letLeadFrom(nt : NodeType) = {subjectNodes = subjectNodes :+ nt}
     def letLeadTo  (nt : NodeType) = {objectNodes  = objectNodes :+ nt}
-    
-    /*
-     * Add the property and it's domain to this EdgeType
-     *
-     */
-    def addProperty(propertyName : String, domain : String) =
-    {
-    	nProp += 1
-    	propertyNameMap.update(propertyName, nProp)
-	    meta = meta :+ domain
-    }
 
 } // EdgeType
 

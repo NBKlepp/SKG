@@ -1,38 +1,18 @@
 package kg
 
-import scala.reflect.ClassTag
-import scala.collection.immutable.Vector
 import scala.collection.mutable.HashMap
-import scalation.util.ReArray
-import scalation.math.{Complex, Rational, Real}
-import scalation.math.StrO
-import scalation.math.StrO.StrNum
-import scalation.math.TimeO
+    
+abstract class Element {} // Element
 
-/*
- * The NodeType2 object holds a representation of all of the Nodes of this
- * NodeType as well as the meta information around this NodeType including
- * the properties that a Node of this NodeType can have, the domains for
- * those properties, and the EdgeTypes for which this NodeType can be
- * either a subject node or object node.
- * NodeType2 can be used with the Node2 object which keeps the properties
- * of the Node object as a map instead of a Vector so that each Node need
- * not store a value for ALL properties available to the NodeType, only
- * as many as needed. 
- * 
- */
+object ElementTester extends App{
 
-abstract class NodeType {} // NodeType
-
-object NodeTypeTester extends App{
-
-    class Road extends NodeType{}
+    class Road extends Element{}
     object Road extends GraphAlgebra
 
-    class Road2 extends NodeType{}
+    class Road2 extends Element{}
     object Road2 extends GraphAlgebra
 
-    class Sensor extends NodeType{}
+    class Sensor extends Element{}
     object Sensor extends GraphAlgebra
 
     Road.addProperty("name",Int)
@@ -46,7 +26,7 @@ object NodeTypeTester extends App{
     Sensor.addProperty("id",Int)
     Sensor.addProperty("district",Int)
     
-    val r1 = Road(HashMap[String,Primitive]("name"->1,"type"->4,"lanes"->1))
+    val r1 = Road(HashMap[String,Primitive]("name"->1.0,"type"->4,"lanes"->1))
     val r2 = Road(HashMap[String,Primitive]("name"->2,"type"->3,"lanes"->2))
     val r3 = Road(HashMap[String,Primitive]("name"->3,"type"->2,"lanes"->3))
     val r4 = Road(HashMap[String,Primitive]("name"->3,"type"->1,"lanes"->4))
@@ -68,22 +48,22 @@ object NodeTypeTester extends App{
     println()
     
     val Sel = Road.select("name", _==3)
-    println(s"select for name == 3: \n${Sel}")
+    println(s"Road.select(name, _==3): \n${Sel}")
     println()
     
     val Proj = Road.project("name","type")
-    println(s"Road.project on name and type: \n${Proj}")
+    println(s"Road.project(name,type): \n${Proj}")
     println()
     
     val Union = Road.union(Sensor)
-    println(s"Road union Sensor: \n${Union}")
+    println(s"Road.union(Sensor): \n${Union}")
     println()
     
-    val Inter = Road.intersect(Road2)
-    println(s"Road intersect Road2: \n${Inter}")
+    val Inter = Road.intersect(Road2) 
+    println(s"Road.intersect(Road2): \n${Inter}")
     println()
     
     val Diff = Road.minus(Road2)
-    println(s"Road minus Road2: \n${Diff}")
+    println(s"Road.minus(Road2): \n${Diff}")
     
-} // NodeType2Tester
+} // ElementTester

@@ -3,6 +3,10 @@ package kg
 import scala.collection.mutable.HashMap
 import scala.collection.immutable.{Vector,Range}
 
+class InvalidDomainException(message : String) extends Exception(message)
+
+class InvalidPropertyException(message : String) extends Exception(message)
+    
 trait ElementTracker{    
 
     var elements = Vector[HashMap[String,Primitive]]()
@@ -10,9 +14,33 @@ trait ElementTracker{
     
     def apply(element : HashMap[String,Primitive]) =
     {
-        elements = elements :+ element
+        try{
+            validDomains(element) 
+            elements = elements :+ element
+        }catch{
+            case ipe : InvalidPropertyException =>  {
+                                                        println(s"WARNING : ${ipe.getMessage()}")
+                                                        println(s"Elemented Not Added.")
+                                                    }
+            case ide : InvalidDomainException   =>  {
+                                                        println(s"WARNING: ${ide.getMessage()}")
+                                                        println(s"Element Not Added.")
+                                                    }
+        }
     }
 
+    /*
+     * Get the number of properties for this ElementTracker object
+     *
+     */
+    def schemaSize = schema.size
+
+    /*
+     * Get the number of nodes for this ElementTracker object.
+     *
+     */
+    def elementsSize = elements.size
+    
     def addProperty(property : String, domain : PrimitiveType) =
     {
         schema.update(property,domain)
@@ -22,6 +50,41 @@ trait ElementTracker{
 
     def getElements() = elements ++ Vector[HashMap[String,Primitive]]()
 
+    def validDomains(element : HashMap[String,Primitive]) =
+    {
+        for ( pv <- element ) {
+
+            val property    = pv._1
+            val value       = pv._2
+     
+            schema.get(property) match {
+                case Some(i)    =>  {
+                                        val expected = (i.getClass).
+                                                        toString.
+                                                        replace("$","").
+                                                        replace("class scala.","")
+                                        val passed = (value.getClass).
+                                                        toString.
+                                                        replace("class java.lang.","").
+                                                        replace("Integer","Int")
+                                        if ( expected != passed ) {
+                                            val message = s"""Error in creating new element:
+                                                            |${prettyElement(element)}
+                                                            |Value ${value} for ${property} has invalid data type.
+                                                            |type ${expected} expected, type ${passed} passed.""".stripMargin
+    /*
+                                            var message = s"Invalid value type passed for property ${property}. "
+                                            message = message + s"Expected type: ${expected}. "
+                                            message = message + s"Type passed: ${passed}. "
+    */
+                                            throw new InvalidDomainException(message)
+                                        } // if
+                                    } // Some(i)
+                case None       =>  throw new InvalidPropertyException("Invalid property for NodeType : ${property}") 
+            } // match
+        } // for
+    } // valiDomains
+    
     override def toString() =
     {
         var str = ""
@@ -44,21 +107,26 @@ trait ElementTracker{
         str
     }
 
-    /*  
+    // TODO Fix formatting for different data types
+    private def prettyElement(element : HashMap[String,Primitive]) : String =
+    {
+        var top = ""
+        var bot = ""
+        for ( pv <- element ) {
+            top  = top + f"${pv._1}%10s"
+            bot = bot + f"${" "}%9s" + s"${pv._2}"
+        }
+        top + "\n" + bot
+    }
+    /*
+
+    //The ElementTracker objects this ElementTracker is related to 
+    private var subjectElements = Vector[T <: ElementTracker]()
+    private var objectElements  = Vector[T <: ElementTracker]()
     
     //The EdgeTypes for which this node can be either a subject or object
     private var subjectEdges = Vector[EdgeType]()
     private var objectEdges  = Vector[EdgeType]()
-
-     *
-     * Get the number of nodes of this NodeType
-     *
-    def numNodes() = {}
-
-     *
-     * Get the number of properties for this NodeType
-     *
-    def numProperties() {}
     
      *
      * The getters for the types of edges that a node of this type can
