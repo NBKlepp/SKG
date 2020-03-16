@@ -2,48 +2,65 @@ package kg
 import scala.collection.immutable.Vector
 import scala.collection.mutable.HashMap
 
-trait GraphAlgebra{
-
-    var elements = Vector[HashMap[String,Primitive]]()
+trait GraphAlgebra extends ElementTracker{
     
-    def apply(element : HashMap[String,Primitive]) =
+    def select(property : String, p : (Primitive) => Boolean) =
     {
-        elements = elements :+ element
+        class NewThing extends NodeType{}
+        object NewThing extends GraphAlgebra
+        for (kv <- schema) NewThing.addProperty(kv._1,kv._2)
+        val unionElements = elements.filter( x => p(x(property)))
+        for (element <- unionElements) NewThing(element)
+        NewThing
     }
     
-    def select(property : String, p : (Primitive) => Boolean) = elements.filter( x => p(x(property)))
-
-    /*  
     
-    //The EdgeTypes for which this node can be either a subject or object
-    private var subjectEdges = Vector[EdgeType]()
-    private var objectEdges  = Vector[EdgeType]()
+    def project(properties : String*) =
+    {
+        class ProjectThing extends NodeType{}
+        object ProjectThing extends GraphAlgebra
+        for (kv <- schema if properties.contains(kv._1)) ProjectThing.addProperty(kv._1,kv._2)
+        val newElements = elements.map( x => x.filter( (k,v) => properties.contains(k)))
+        for (element <- newElements) ProjectThing(element)
+        ProjectThing
+    }
 
-     *
-     * Get the number of nodes of this NodeType
-     *
-    def numNodes() = {}
+    def union[T <: ElementTracker](nodeType : T) =
+    {
+        class NewThing extends NodeType{}
+        object NewThing extends GraphAlgebra
+        for (kv <- schema              ) NewThing.addProperty(kv._1,kv._2)
+        for (kv <- nodeType.getSchema()) NewThing.addProperty(kv._1,kv._2)
+        val newElements = elements.foldLeft( nodeType.getElements() )( (x,y) => {if (!x.contains(y)) x :+ y else x} )
+        for (element <- newElements) NewThing(element)
+        NewThing
+    }
 
-     *
-     * Get the number of properties for this NodeType
-     *
-    def numProperties() {}
+    def intersect[T <: ElementTracker](nodeType : T) =
+    {
+        class NewThing extends NodeType{}
+        object NewThing extends GraphAlgebra
+        if (schema == nodeType.getSchema()){
+            for (kv <- schema              ) NewThing.addProperty(kv._1,kv._2)
+            val those = nodeType.getElements()
+            val newElements = elements.foldLeft( Vector[HashMap[String,Primitive]]() )( (x,y) => {if(those.contains(y)) x :+ y else x} )
+            for (element <- newElements) NewThing(element)
+        } // if
+        NewThing
+    }
+
+    def minus[T <: ElementTracker](nodeType : T) =
+    {
+        class NewThing extends NodeType{}
+        object NewThing extends GraphAlgebra
+        if (schema == nodeType.getSchema()){
+            for (kv <- schema              ) NewThing.addProperty(kv._1,kv._2)
+            val those = nodeType.getElements()
+            val newElements = elements.foldLeft( Vector[HashMap[String,Primitive]]() )( (x,y) => if (!those.contains(y)) x :+ y else x)
+            for (element <- newElements) NewThing(element)
+        } // if
+        NewThing
+    }
+        
     
-     *
-     * The getters for the types of edges that a node of this type can
-     * be either a subject or object for
-     *
-    def isSubjectFor(et : EdgeType) = {subjectEdges.contains(et)}
-    def isObjectFor (et : EdgeType) = {objectEdges.contains(et)}
-
-     *
-     * The setters for the types of edges that a node of this type can
-     * be either a subject or object for      
-     *
-     *
-    def makeSubjectFor(et : EdgeType) = {subjectEdges = subjectEdges :+ et}
-    def makeObjectFor (et : EdgeType) = {objectEdges  = objectEdges :+ et}
-
-    def getPropertyDomain(property : String) = schema.get(property)
-     */
 }
