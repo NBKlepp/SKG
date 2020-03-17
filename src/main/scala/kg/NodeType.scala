@@ -2,13 +2,8 @@ package kg
 
 import scala.collection.mutable.HashMap
 import scala.collection.immutable.{Vector,Range}
-
-class InvalidDomainException(message : String) extends Exception(message)
-class InvalidPropertyException(message : String) extends Exception(message)
-class PrimaryKeyException(message : String) extends Exception(message)
-class EmptyPrimaryKeyException(message : String) extends Exception(message)
-    
-trait ElementTracker(name : String) {    
+        
+trait NodeType(name : String) {    
 
     var elements = Vector[HashMap[String,Primitive]]()
     val schema = HashMap[String,PrimitiveType]()
@@ -20,16 +15,17 @@ trait ElementTracker(name : String) {
             validate(element) 
             elements = elements :+ element
         }catch{
-            case e  : Exception =>  {
-                                        println(s"WARNING: Invalid element for ElementTracker ${name}.")
-                                        println(s"${e.getMessage()}")
-                                        println("Element Not Added.")
-                                    } // case e
+            case e  : Exception =>
+                {
+                     println(s"WARNING: Invalid element for NodeType ${name}.")
+                     println(s"${e.getMessage()}")
+                     println("Node Not Added.")
+                } // case e
         } // catch
     } // apply
 
     /*
-     * Get the number of properties for this ElementTracker object
+     * Get the number of properties for this NodeType object
      *
      */
     def schemaSize = schema.size
@@ -37,7 +33,7 @@ trait ElementTracker(name : String) {
     def getName() : String = name
     
     /*
-     * Get the number of nodes for this ElementTracker object.
+     * Get the number of nodes for this NodeType object.
      *
      */
     def elementsSize = elements.size
@@ -56,8 +52,9 @@ trait ElementTracker(name : String) {
     {
         schema.get(property) match {
             case Some(i)     => primaryKey = primaryKey :+ property
-            case None        => println(s"""WARNING: {property} not a property for element type ${name}
-                                            |{property} not added as primary key property.""".stripMargin)
+            case None        => 
+                println(s"""WARNING: {property} not a property for element type ${name}
+                        |{property} not added as primary key property.""".stripMargin)
         }
     }
 
@@ -65,7 +62,7 @@ trait ElementTracker(name : String) {
 
     def getPrimaryKey() = primaryKey ++ Vector[String]()
 
-    def getElements() = elements ++ Vector[HashMap[String,Primitive]]()
+    def getNodes() = elements ++ Vector[HashMap[String,Primitive]]()
 
     def validate(element : HashMap[String,Primitive]) =
     {
@@ -76,16 +73,22 @@ trait ElementTracker(name : String) {
                 val value       = pv._2
                 schema.get(property) match {
                     case Some(i)    =>  validatePropertyValueDomain(i,property,value) 
-                    case None       =>  throw new Exception(s"Property: ${property} not in schema for element type ${name}") 
+                    case None       =>  {
+                        throw new Exception(s"Property: ${
+                            property} not in schema for element type ${name}")
+                    }
                 } // match
             } // for
         }catch{
-            case e : Exception => throw new Exception(s"""${prettyElement(element)} 
-                                                      |${e.getMessage()}""".stripMargin)
+            case e : Exception => 
+                throw new Exception(s"""${prettyNode(element)} 
+                                    |${e.getMessage()}""".stripMargin)
         }
     } // valiDomains
-
-    private def validatePropertyValueDomain(i : PrimitiveType, property: String, value : Primitive) =
+    
+    private def validatePropertyValueDomain(i : PrimitiveType,
+                                            property: String,
+                                            value : Primitive) =
     {
         val expected = (i.getClass).
                           toString.
@@ -95,21 +98,32 @@ trait ElementTracker(name : String) {
                           toString.
                           replace("class java.lang.","").
                           replace("Integer","Int")
-        if ( expected != passed ) throw new Exception(s"""Value ${value} for ${property} has invalid data type.
-                                                      |Type ${expected} expected, type ${passed} passed.""".stripMargin)
+        if ( expected != passed ){
+            var message = s"""Value ${value} for ${property} has invalid data type.
+                            |Type ${expected} expected,"
+            message = message + "type ${passed} passed.""".stripMargin
+            throw new Exception(message)
+                                
+        }
     }
 
     private def validatePrimaryKey(element : HashMap[String,Primitive]) =
     {
-        if ( primaryKey.size == 0 ) throw new Exception("No primary key defined for element type {name}.")
-        for ( k <- primaryKey if !element.keySet.contains(k) )
-            throw new Exception(s"Missing primary key value for ${k} property of element type {name}")
+        if ( primaryKey.size == 0 ) 
+            throw new Exception("No primary key defined for element type {name}.")
+        for ( k <- primaryKey if !element.keySet.contains(k) ) {
+            var message = s"Missing primary key value for ${k} "
+            message = message + s"property of element type ${name}"
+            throw new Exception(message)
+        }
     }
     
     override def toString() =
     {
         var str = s"${name}:\n"
-        val maxLength = schema.keys.foldLeft( 0 )( (x,y) => {if (x>=y.length) x else y.length} ) + 2
+        val maxLength = schema.keys.foldLeft( 0 )( 
+            (x,y) => {if (x>=y.length) x else y.length} 
+        ) + 2
         val keyIndexMap = HashMap[Int,String]()
         val keyIndices = (schema.keys zip Range(0,schema.size))
         keyIndices.foreach(x => keyIndexMap.update(x._2,x._1))
@@ -129,7 +143,7 @@ trait ElementTracker(name : String) {
     }
 
     // TODO Fix formatting for different data types
-    private def prettyElement(element : HashMap[String,Primitive]) : String =
+    private def prettyNode(element : HashMap[String,Primitive]) : String =
     {
         var top = ""
         var bot = ""
@@ -141,9 +155,9 @@ trait ElementTracker(name : String) {
     }
     /*
 
-    //The ElementTracker objects this ElementTracker is related to 
-    private var subjectElements = Vector[T <: ElementTracker]()
-    private var objectElements  = Vector[T <: ElementTracker]()
+    //The NodeType objects this NodeType is related to 
+    private var subjectNodes = Vector[T <: NodeType]()
+    private var objectNodes  = Vector[T <: NodeType]()
     
     //The EdgeTypes for which this node can be either a subject or object
     private var subjectEdges = Vector[EdgeType]()

@@ -2,16 +2,16 @@ package kg
 
 import scala.collection.mutable.HashMap
     
-abstract class Element {} // Element
+abstract class Node {} // Node
 
-object ElementTester extends App{
+object NodeTester extends App{
 
     println("Defining Road element...")
 
-    class Road extends Element{}
+    class Road extends Node{}
     object Road
-        extends SetTheoretic
-        with ElementTracker("Road")
+        extends NodeAlgebraic
+        with NodeType("Road")
 
     Road.addProperty("name",Int)
     Road.addProperty("dir",Int)
@@ -23,17 +23,21 @@ object ElementTester extends App{
 
     println("Creating roads...")
 
-    val r1 = Road(HashMap[String,Primitive]("name"->1.0,"type"->4,"lanes"->1,"dir"->1))
-    val r2 = Road(HashMap[String,Primitive]("name"->2,"type"->3,"lanes"->2,"dir"->1))
-    val r3 = Road(HashMap[String,Primitive]("name"->3,"type"->2,"lanes"->3,"dir"->1))
-    val r4 = Road(HashMap[String,Primitive]("name"->3,"type"->1,"lanes"->4,"dir"->1))
+    val r1 = Road(HashMap[String,Primitive](
+        "name"->1.0,"type"->4,"lanes"->1,"dir"->1))
+    val r2 = Road(HashMap[String,Primitive](
+        "name"->2,"type"->3,"lanes"->2,"dir"->1))
+    val r3 = Road(HashMap[String,Primitive](
+        "name"->3,"type"->2,"lanes"->3,"dir"->1))
+    val r4 = Road(HashMap[String,Primitive](
+        "name"->3,"type"->1,"lanes"->4,"dir"->1))
 
     println("Defining Road2 element...")
 
-    class Road2 extends Element{}
+    class Road2 extends Node{}
     object Road2
-        extends SetTheoretic
-        with ElementTracker("Road2")
+        extends NodeAlgebraic
+        with NodeType("Road2")
     
     Road2.addProperty("name",Int)
     Road2.addProperty("dir",Int)
@@ -44,15 +48,18 @@ object ElementTester extends App{
     Road2.addPrimaryKey("dir")
 
     println("Creating road2s...")
-    val r5 = Road2(HashMap[String,Primitive]("name"->1,"type"->4,"lanes"->1,"dir"->1))
-    val r6 = Road2(HashMap[String,Primitive]("name"->3,"type"->2,"lanes"->3,"dir"->1))
-    val r7 = Road2(HashMap[String,Primitive]("name"->5,"type"->2,"lanes"->3,"dir"->1))
+    val r5 = Road2(HashMap[String,Primitive](
+        "name"->1,"type"->4,"lanes"->1,"dir"->1))
+    val r6 = Road2(HashMap[String,Primitive](
+        "name"->3,"type"->2,"lanes"->3,"dir"->1))
+    val r7 = Road2(HashMap[String,Primitive](
+        "name"->5,"type"->2,"lanes"->3,"dir"->1))
 
     println("Defining Sensor element")
-    class Sensor extends Element{}
+    class Sensor extends Node{}
     object Sensor
-        extends SetTheoretic
-        with ElementTracker("Sensor")
+        extends NodeAlgebraic
+        with NodeType("Sensor")
   
     Sensor.addProperty("id",Int)
     Sensor.addProperty("district",Int)
@@ -65,7 +72,7 @@ object ElementTester extends App{
     val s3 = Sensor(HashMap[String,Primitive]("id"->3,"district"->2))
     val s4 = Sensor(HashMap[String,Primitive]("id"->4,"district"->1))
 
-    println("Testing set theoretic operations...")
+    println("Testing NodeAlgebraic operations...")
     
     println(s"Road: \n${Road}")
     println()
@@ -95,4 +102,4 @@ object ElementTester extends App{
     val Diff = Road.minus(Road2)
     println(s"Road.minus(Road2): \n${Diff}")
     
-} // ElementTester
+} // NodeTester
