@@ -1,0 +1,296 @@
+package kg
+
+import scala.collection.mutable.HashMap
+
+trait ElementAlgebra[T <: Element] extends ElementTracker[T]{
+
+    val DEBUG = true
+    
+    /*
+     *  Project this ElementTracker onto a subset of its properties. 
+     *
+     *    
+    def project(properties : Vector[String]) : ElementAlgebra[T] =
+    {
+    
+        class ProjectThing extends Element{}
+        object ProjectThing extends ElementAlgebra[T]
+      
+        try{
+            for (p <- properties if !schema.contains(p))
+                throw new InvalidProjectionProperty(p)
+        	for (pd <- schema if properties.contains(pd._1))
+        	    ProjectThing.addProperty(pd)    	
+        	for (e <- elements.map(
+                    x => x.getProperties().filter(
+                        (k,v) => properties.contains(k)))) ProjectThing(e)   
+            ProjectThing
+        }catch{
+            case ipp : InvalidProjectionProperty    =>
+                {
+                    var message = "Invalid projection property "
+                    message = message + s"for ElementtType ${getName()}\n"
+                    message = message + s"${ipp.getMessage()}"
+                    println(message)
+                    return ProjectThing
+                }
+            case e : Throwable                      =>
+                {
+                    println("""Unexpected exception:
+                            |${e.getMessage()}""".stripMargin)
+                    return ProjectThing
+                }
+        } // catch
+    }
+    */
+    
+    /*
+     *  A method to project one ElementTracker 
+     *  object onto the schema of another
+     *
+    def _project(other : ElementAlgebra[T]) : ElementAlgebra[T] =
+    {
+
+        class ProjectThing extends Element{}
+        //object ProjectThing extends ElementTracker
+        
+        val common = schema.keySet.filter(
+            k => other.getSchema().contains(k)
+        ).toVector  
+
+        val ProjectThing = project(common)
+        
+        return ProjectThing
+        
+        //for (pd <- common) ProjectThing.addProperty(pd)
+
+        //for (e <- elements.map
+        //    (
+        //        x => x.getProperties().filter(
+        //                (k,v) => common.contains(k)
+        //        )
+        //    )
+        //)
+        //ProjectThing(e)
+        
+        //ProjectThing
+    } // _project
+    */
+    
+    /*
+     *  A method to select the elements of this ElementTracker
+     *  that satisfy some predicate 
+     */
+    def select  ( property    : String, 
+                  p           : (Primitive) => Boolean
+                ) : ElementAlgebra[T] =
+    {
+    
+        class SelectThing extends Element{}
+        object SelectThing extends ElementAlgebra[T]
+
+        try{
+            validateSelect(property)
+            for (pd <- schema) SelectThing.addProperty(pd)
+            /*for (element <- elements.map(_.getProperties()).filter(
+                x => p(x(property)))) SelectThing(element)
+            */
+            for (element <- elements.filter( x => p(x(property))))
+                SelectThing.add(element)
+            return SelectThing
+        }catch{
+            case e : Exception => 
+                {
+                    println(e.getMessage())
+                    return SelectThing
+                } // case e
+        } // catch  
+    }
+    
+    /*
+     *  Returns a new ElementTracker consisting of all the elements that
+     *  are either in this ElementTracker object or the other.
+     *  Will only work on elements with the same schema.   
+     */
+    def union   (   other : ElementAlgebra[T]) : ElementAlgebra[T] =
+    {
+        class UnionThing extends Element{}
+        object UnionThing extends ElementAlgebra[T]
+        
+        if (schema == other.getSchema()){        	
+        	for (kv <- schema)
+        	    UnionThing.addProperty(kv._1,kv._2)
+            for (element <- elements) UnionThing.add(element)
+            for (element <- other.getElements().filter( x => 
+                !(UnionThing.getElements().contains(x)))) UnionThing.add(element)
+            return UnionThing
+        } // if
+        else{
+            println("Error in ElementAlgebra[T] union.")
+            println(s"This:\n${schema}")
+            println(s"Not unnion compatible with other:\n${other.getSchema()}")
+            return UnionThing
+        } // else
+    } // union
+
+    /*
+     * A schema agnostic version of the union operation
+     * TODO : FINISH
+     */
+
+    def _union(other : ElementAlgebra[T]) =
+    {
+        class UnionThing extends Element{}
+        object UnionThing extends ElementAlgebra[T]
+        
+        
+    }
+    
+    /*
+     *  A "union compatible" version of intersection. 
+     */
+    def intersect(other : ElementAlgebra[T]) : ElementAlgebra[T] = 
+    {
+        class IntersectThing extends Element{}
+        object IntersectThing extends ElementAlgebra[T]
+
+        if( schema == other.getSchema() )
+        {
+            for (kv <- schema) IntersectThing.addProperty(kv._1,kv._2)
+            val those = other.getElements()
+            for( element <- elements.foldLeft( Vector[T]() )(
+                (x,y) => {if(those.contains(y)) x :+ y else x} )
+            )  IntersectThing.add(element)
+    
+        } // if
+
+        return IntersectThing
+    }
+
+    /*
+     *  A structural intersection
+     *
+    def _intersect(other : ElementAlgebra[T]) : ElementAlgebra[T] =
+    {
+        class IntermediateThing1 extends Element{}
+        val IntermediateThing1 = this._project(other)
+
+        class IntermediateThing2 extends Element{}
+        val IntermediateThing2 = other._project(IntermediateThing1)
+    
+        class IntersectThing extends Element{}
+        val IntersectThing = IntermediateThing1.intersect(IntermediateThing2)        
+
+        return IntersectThing
+    }
+    */
+    /*  TODO FIX 
+     *
+     *  A .equals intersect (insead of ==) 
+     *
+    def _intersect2(other : ElementAlgebra[T]) : ElementAlgebra[T] = 
+    {
+        class IntersectThing extends Element{}
+        object IntersectThing
+            extends ElementAlgebra[T]
+        
+        IntersectThing.addSchema(schema)
+        val those = other.getElements()
+
+        val common = schema.keySet.filter( k => other.getSchema().contains(k) ).toArray
+        for( element <- elements.foldLeft( Vector[Element]() )( (x,y) => {
+            if ( x.equals(y)) x :+ y else x} )
+        )  IntersectThing.add(element)
+    
+        return IntersectThing
+    }
+     */
+
+    /*
+     *  The minus operation. 
+     */
+    def minus(other : ElementAlgebra[T], name : String = null) =
+    {
+        if (DEBUG) {
+            println(s"from minus... \nthis: \n${this}\nother: \n${other}")
+        }
+    
+        class MinusThing extends Element{}
+        object MinusThing extends ElementAlgebra[T]
+ 
+        if ( schema == other.getSchema() )
+        {
+            for (kv <- schema) MinusThing.addProperty(kv._1,kv._2)
+    
+            val those = other.getElements()
+            val newElements = elements.foldLeft(Vector[T]())( 
+                (x,y) => if (!those.contains(y)) x :+ y else x
+            )
+            for (element <- newElements) MinusThing.add(element)
+        } // if
+        MinusThing
+    }
+
+    /*
+     *  A structural minus operation.
+     *
+    def _minus(other : ElementAlgebra[T]) : ElementAlgebra[T] = 
+    {
+
+        class IntermediateThing1 extends Element{}
+        val IntermediateThing1 = this._project(other)
+
+        class IntermediateThing2 extends Element{}
+        val IntermediateThing2 = other._project(IntermediateThing1)
+
+        class MinusThing extends Element{}
+        val MinusThing = IntermediateThing1.minus(IntermediateThing2)   
+
+        return MinusThing
+    }
+    */
+    
+    /*
+    private def uniqueify(other : ElementAlgebra[T]) : 
+        Tuple2[HashMap[String,PrimitiveType],Vector[String]] = 
+    {
+        val uniqueifiedSchema = HashMap[String,PrimitiveType]()
+        var uniqueifiedPrimaryKey = Vector[String]()
+
+        for ( kv <- other.getSchema() ) {
+            schema.get(kv._1) match {
+                case Some(i)    =>     
+                    uniqueifiedSchema.update(s"${
+                        kv._1}_${other.getName()
+                    }",kv._2)
+                case None       =>  
+                    uniqueifiedSchema.update(kv._1,kv._2)
+            } // match
+            if (otherPrimaryKey.contains(kv._1)) 
+                uniqueifiedPrimaryKey = uniqueifiedPrimaryKey :+ kv._1
+        } // for
+        return Tuple2(uniqueifiedSchema,uniqueifiedPrimaryKey)
+    }
+    */
+    
+    private def validateProjectionProperties(properties : String *) =
+    {
+        for ( p <- properties if !schema.keySet.contains(p) ) {
+            var message = s"""Invalid property to project these elements onto.
+                            |$p not in ${schema.keys}.""".stripMargin
+            throw new Exception(message)
+        }
+    }
+
+    private def validateSelect(property : String) =
+    {
+        if (!schema.keySet.contains(property)) {
+            var message = s"""ElementAlgebraic select error.
+                |Invalid property for nNdeType """.stripMargin
+            message = message + s"${getName()}: ${property}"
+            throw new Exception(message)
+        }
+    }
+    
+
+}

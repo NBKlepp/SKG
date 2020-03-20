@@ -2,7 +2,17 @@ package kg
 
 import scala.collection.mutable.HashMap
     
-abstract class Node {} // Node
+class Node extends Element{
+    def copy() : Node =
+    {
+        val copyNode = new Node()
+        copyNode.setProperties(properties)
+        return copyNode
+    }
+    
+    override def toString() = this.properties.toString()
+
+} // Node
 
 object NodeTester extends App{
 
@@ -18,13 +28,14 @@ object NodeTester extends App{
     Road.addProperty("lanes",Int)
     Road.addProperty("type",Int)
 
-    Road.addPrimaryKey("name")
-    Road.addPrimaryKey("dir")
-
     println("Creating roads...")
 
-    val r1 = Road(HashMap[String,Primitive](
-        "name"->1.0,"type"->4,"lanes"->1,"dir"->1))
+    try{
+        val r1 = Road(HashMap[String,Primitive](
+            "name"->1.0,"type"->4,"lanes"->1,"dir"->1))
+    }catch{
+        case e : Throwable => println("Didn't allow bad type. Test passed.")
+    }
     val r2 = Road(HashMap[String,Primitive](
         "name"->2,"type"->3,"lanes"->2,"dir"->1))
     val r3 = Road(HashMap[String,Primitive](
@@ -44,9 +55,6 @@ object NodeTester extends App{
     Road2.addProperty("lanes",Int)
     Road2.addProperty("type",Int)
 
-    Road2.addPrimaryKey("name")
-    Road2.addPrimaryKey("dir")
-
     println("Creating road2s...")
     val r5 = Road2(HashMap[String,Primitive](
         "name"->1,"type"->4,"lanes"->1,"dir"->1))
@@ -63,8 +71,6 @@ object NodeTester extends App{
   
     Sensor.addProperty("id",Int)
     Sensor.addProperty("district",Int)
-
-    Sensor.addPrimaryKey("id")
 
     println("Creating sensors...")
     val s1 = Sensor(HashMap[String,Primitive]("id"->1,"district"->4))
