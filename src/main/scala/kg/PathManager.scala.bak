@@ -1,0 +1,85 @@
+package kg
+    
+import scala.collection.mutable.HashMap    
+
+class Path(_subj : Node, _pred : Edge, _obj : Node){
+
+    def subj = _subj.getLabel()
+    def pred = _pred.getLabel()
+    def obj  = _obj.getLabel()
+
+    def apply(i : Int) : Option[String] =
+    {
+        i match {
+            case 0 => subj
+            case 1 => pred
+            case 2 => obj
+        }
+    }
+
+}
+/*
+        The path manager trait keeps track of paths in a graph
+ */
+trait GraphManager() {
+
+    val SUBJ = 0
+    val PRED = 1
+    val OBJ = 2
+    
+    /*
+        A hashmap to find paths in the graph.
+        The key is the edge type.
+        The value is a vector of paths:
+            From vertex --> On Edge --> To Vertex
+     */
+
+    //Indexed by EdgeType label
+    val pathsByPred = HashMap[String, Vector[Path]]()
+    //Indexed by Subject NodeType
+    val pathsBySubj = HashMap[String, Vector[Path]]()
+    //Indexed by object NodeType
+    val pathsByObj = HashMap[String, Vector[Path]]()
+    //Unindexed
+    var paths  = Vector[Path]()
+
+    def addPath(path : Path) = 
+    {
+        //if the label exists use it to update the appropriate map
+        path.subj match{
+            case Some(label)    => updatePaths(path,label,SUBJ)
+            case None           =>
+        }
+        path.pred match{
+            case Some(label)    => updatePaths(path,label,PRED)
+            case None           =>
+        }
+        path.obj match{
+            case Some(label)    => updatePaths(path,label,OBJ)
+            case None           =>
+        }
+        paths = paths :+ path
+    }
+
+    
+
+    private def updatePaths(path : Path,label : String, i : Int) =
+    {
+        val map = i match {
+            case SUBJ => pathsBySubj
+            case PRED => pathsByPred
+            case OBJ  => pathsByObj    
+        } // i match
+
+    
+        map.updateWith(label)({
+            case None => Some(Vector[Path](path))
+            case Some(i) => {
+                val _i = i :+ path
+                Some(_i)  
+            } // case Some(i)
+        }) // map.updateWith...
+    } // updatePaths
+    
+}     
+
