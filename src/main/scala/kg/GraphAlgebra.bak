@@ -1,0 +1,301 @@
+package kg
+
+import scala.collection.mutable.HashMap
+import scala.collection.immutable.Vector
+
+trait GraphAlgebra extends RelationPrinter{
+
+    var nodeTypes = Vector[ElementType]()
+    var edgeTypes = Vector[ElementType]()
+
+    val nodeTypeMap = HashMap[String,Int]()
+    val edgeTypeMap = HashMap[String,Int]()
+
+    var nNodeTypes = 0
+    var nEdgeTypes = 0
+
+    var relations = Vector[Relation]()
+
+    var schema = Vector[
+                    Tuple3[
+                        ElementType,
+                        ElementType,
+                        ElementType]]()
+
+    def updateSchema(
+        allowedRelations : Tuple3[
+                                ElementType,
+                                ElementType,
+                                ElementType] *) = 
+    {
+        for (rel <- allowedRelations) schema = schema :+ rel
+    }
+
+    def addSchema(schema : Vector[
+                            Tuple3[
+                                ElementType,
+                                ElementType,
+                                ElementType]]) =
+    {
+        this.schema = this.schema ++ schema
+    }
+    
+    def addNodeTypes(elementTypes : ElementType*) =
+    {
+        elementTypes.foreach( elementType =>
+            {
+                nodeTypeMap.update(elementType.name,nNodeTypes)
+                nodeTypes = nodeTypes :+ elementType
+                nNodeTypes = nNodeTypes + 1
+            }
+        )
+    }
+
+    def getNodeTypes() : Vector[ElementType] =
+    {
+        return nodeTypes ++ Vector[ElementType]()
+    }
+    
+    def addEdgeTypes(elementTypes : ElementType*) =
+    {
+        elementTypes.foreach( elementType =>
+            {
+                edgeTypeMap.update(elementType.name,nEdgeTypes)
+                edgeTypes = edgeTypes :+ elementType
+                nEdgeTypes = nEdgeTypes + 1
+            }
+        )
+    }
+
+    def addRelations(_relations : Relation*) =
+    {
+        _relations.foreach(relation => relations = relations :+ relation)
+    }
+
+    def apply(_elementTypes : ElementType *) : GraphAlgebra =
+    {
+    
+        val g = new Graph()
+        //g.addSchema(schema)
+        val elementTypes = {
+            if (_elementTypes.length == 0) this.nodeTypes ++ this.edgeTypes
+            else _elementTypes
+        }
+    
+        elementTypes.foreach(
+            elementType =>
+            {
+                nodeTypeMap.get(elementType.name) match
+                {
+                    case Some(i) =>
+                    {
+                        g.addNodeTypes(this.nodeTypes(i).intersect(elementType))
+                    }
+                    case None => 
+                }
+            }
+        )
+
+        elementTypes.foreach(
+            elementType =>
+            {
+                edgeTypeMap.get(elementType.name) match
+                {
+                    case Some(i) =>
+                    {
+                        g.addEdgeTypes(this.edgeTypes(i).intersect(elementType))
+                    }
+                    case None => 
+                }
+            }
+        )
+        return g
+    }//nodes(nodeTypes:_*)
+
+    def nodes(_nodeTypes : ElementType *) : Graph = 
+    {
+        val g = new Graph()
+        //g.addSchema(schema)
+        val nodeTypes = {
+            if (_nodeTypes.length == 0) this.nodeTypes
+            else _nodeTypes
+        }
+    
+        nodeTypes.foreach(
+            nodeType =>
+            {
+                nodeTypeMap.get(nodeType.name) match
+                {
+                    case Some(i) =>
+                    {
+                        g.addNodeTypes(this.nodeTypes(i).intersect(nodeType))
+                    }
+                    case None => 
+                }
+            }
+        )
+        return g
+    }
+
+    def edges(_edgeTypes : ElementType *) : Graph = 
+    {
+        val g = new Graph()
+        //g.addSchema(schema)
+        val edgeTypes = {
+            if (_edgeTypes.length == 0) this.edgeTypes
+            else _edgeTypes
+        }
+        edgeTypes.foreach(
+            edgeType =>
+            {
+                edgeTypeMap.get(edgeType.name) match
+                {
+                    case Some(i) =>
+                    {
+                        g.addEdgeTypes(this.edgeTypes(i).intersect(edgeType))
+                    }
+                    case None => 
+                }
+            }
+        )
+        return g
+    }
+
+    /*
+    def expandForward( g : Graph, _nodeTypes : NodeType *) : Graph =
+    {
+        val nodeTypes =
+        {
+            if (_nodeTypes.length==0) g.getNodeTypes()
+            else g.nodes(_nodeTypes:_*).getNodeTypes()
+        }
+        
+        return new Graph()
+        
+    }
+    */
+    
+    override def toString() : String =
+    {
+        var str = "\t\tNODES: \n"
+        str = str + nodeTypes.foldLeft("")((x,y)=>x+y.toString()+"\n")
+        str = str + "\t\tEDGES:\n"
+        str = str + edgeTypes.foldLeft("")((x,y)=>x+y.toString()+"\n")
+        str = str + "\t\tRELATIONS:\n"
+        for ( (nt1,et,nt2) <- schema ) str = str + relationTable(relations,nt1,et,nt2) + "\n" 
+        return str
+    }
+
+    def print(g : Graph) : String =
+    {
+        var str = "\t\tNODES: \n"
+        str = str + g.getNodeTypes().foldLeft("")((x,y)=>x+y.toString()+"\n")
+        str = str + "\t\tEDGES:\n"
+        str = str + g.getEdgeTypes().foldLeft("")((x,y)=>x+y.toString()+"\n")
+        str = str + "\t\tRELATIONS:\n"
+        for ( (nt1,et,nt2) <- schema ) str = str + relationTable(g.getRelations(),nt1,et,nt2) + "\n" 
+        return str
+    }
+}
+
+/*
+    GraphTesterOne tests the basic functionality of a graph:
+        nodes,
+*/
+/*
+object GraphTesterOne extends App{
+
+    class Person(id : Int) extends Node(id){}
+    object Person extends NodeType("Person"){}
+    
+    Person.addProperty(
+        ("name",Int)
+    )    
+
+    val p1 = Person(("name",1))
+    val p2 = Person(("name",2))
+    val p3 = Person(("name",3))
+    val p4 = Person(("name",4))
+    val p5 = Person(("name",5))
+
+    class Movie(id : Int) extends Node(id){}
+    object Movie extends NodeType("movie"){}
+    
+    Movie.addProperty(("title",Int))
+
+    val m1 = Movie(
+        ("title",1)
+    )
+    val m2 = Movie(
+        ("title",2)
+    )
+
+    class ActedIn(id : Int) extends Edge(id){}
+    object ActedIn extends EdgeType("acted_in"){}
+    
+    ActedIn.addProperty(("role",Int))
+    
+    val r1  = ActedIn(("role",0))
+    val r21 = ActedIn(("role",1))
+    val r22 = ActedIn(("role",2))
+    val r41 = ActedIn(("role",3))
+    val r42 = ActedIn(("role",4))
+    
+    class Directed(id : Int) extends Edge(id){}
+    object Directed extends EdgeType("directed"){}
+    
+    Directed.addProperty("something",Int)
+    val d3 = Directed(("something",3))
+    val d5 = Directed(("something",5))
+    
+    
+    val rel1        = Relation(p1,r1,m1)
+    val rel2_21_1   = Relation(p2,r21,m1)
+    val rel2_22_2   = Relation(p2,r22,m2)
+    val rel4_41_1   = Relation(p4,r41,m1)
+    val rel4_42_2   = Relation(p4,r42,m2)
+
+    val rel3_3_1    = Relation(p3,d3,m1)
+    val rel5_5_2    = Relation(p5,d5,m2)
+
+    println(s"rel1: ${rel1}")
+    println(s"rel2_21_1: ${rel2_21_1}")
+    println(s"rel2_22_2: ${rel2_22_2}")
+    println(s"rel4_41_1: ${rel4_41_1}")
+    println(s"rel4_42_2: ${rel4_42_2}")
+    
+    
+    
+    val g = new Graph()
+    g.updateSchema(
+        (Person,ActedIn,Movie),
+        (Person,Directed,Movie)
+    )
+    g.addNodeTypes(Person,Movie)
+    g.addEdgeTypes(ActedIn)
+    g.addRelations(
+                rel1  ,             
+    			rel2_21_1,   
+    			rel2_22_2,   
+    			rel4_41_1,   
+    			rel4_42_2,  			
+    			rel3_3_1 ,    
+    			rel5_5_2)
+    
+    val g2 = g.nodes()
+    val g3 = g.nodes(Person)
+    val g4 = g.nodes(Movie)
+    val g5 = g.nodes(Person.select("name",_==1))
+    val g6 = g.edges(ActedIn)
+    val g7 = g.edges(Directed.select("something",_==2))
+    
+    println(s"g  : \n$g")
+    println(s"g2 : \n$g2")
+    println(s"g3 : \n$g3")
+    println(s"g4 : \n$g4")
+    println(s"g5 : \n$g5")
+    println(s"g6 : \n$g6")
+    println(s"g7 : \n$g7")
+    
+}
+*/

@@ -238,10 +238,105 @@ class Graph{
      */
     def extendForward( g : Graph, _edgeTypes : ElementType *) : Graph = 
     {
-        extend(g,FORWARD,_edgeTypes:_*)
+        val newG = new Graph()
+        val edgeTypes =                           /* Assume that we want to 
+                                                   * expand on all  edge types
+                                                   * if none are passed
+                                                   */
+        {
+            if (_edgeTypes.length==0) g.edgeTypes
+            else g(_edgeTypes:_*).edgeTypes
+        } // edgeTypes
+
+                                                   /* We'll use the schema of
+                                                    * the other graph since
+                                                    * that's what we're using
+                                                    * as our extension reference
+                                                    */                                                   
+        g.schema.filter( tup =>
+            {
+                nodeTypeMap.contains(tup._1) &&    /* We only want the schema
+                                                    * tuples for object NodeTypes
+                                                    * relevant to this graph
+                                                    */
+                edgeTypes.map(typ=>typ.name
+                    ).contains(tup._2)            /* As well as schema tuples
+                                                   * with EdgeTypes appropriate
+                                                   * to the method call
+                                                   */
+            }
+        ).foreach( tup =>
+            {
+
+                /* First, we need a NodeType for this graph to extend to.
+                 * We know that the subject NodeType exists in this
+                 * graph because we filtered for it. 
+                 * Then we need the subject NodeType for the other graph.
+                 */
+    
+                val thisSType = nodeTypes(nodeTypeMap(tup._1))
+                val otherSType = g.nodeTypes(nodeTypeMap(tup._1))
+
+                /* Next, we need an EdgeType for this graph to extend with,
+                 * It may or may not yet exist for this graph.
+                 * Then we need the EdgeType for the other graph.
+                 */
+            
+                val thisPType = getOrMakeElementType(tup,g,EDGE,PRED)
+                val otherPType = g.edgeTypes(edgeTypeMap(tup._2))
+
+                /* Now, we need the object NodeTypes. 
+                 * It may or may not exist in this graph. 
+                 */
+    
+                val thisOType = getOrMakeElementType(tup,g,NODE,OBJ)             
+                val otherOType = g.nodeTypes(nodeTypeMap(tup._3))
+
+                /* Update the schema of this graph to allow any new relation
+                 * types we may need
+                 */
+                updateSchema((thisSType,thisPType,thisOType))
+    
+                /* Finally, we'll filter the relations from the argument
+                 * graph by the ElementTypes we found above, and we'll add
+                 * the elements and relations that need to be added into the
+                 * calling object graph
+                 */
+
+                g.relations.filter( rel =>
+                    {
+                        thisSType.contains(rel.subj)  &&    /* We only want to
+                                                             * add paths to this
+                                                             * graph from nodes
+                                                             * which already
+                                                             * exist in it
+                                                             */
+                        otherPType.contains(rel.pred) &&
+                                                            /* Filtering for the
+                                                             * ElementType that
+                                                             * we found previous
+                                                             */
+    
+                        otherOType.contains(rel.obj)        /* Again, filtering.
+                                                             */
+                    }
+                ).foreach( rel =>
+                    {
+                        if (DEBUG) println(s"relations before: ${relations}")
+                        thisPType.add(rel.pred)
+                        thisOType.add(rel.obj)
+                        addRelation(rel)
+                        if (DEBUG) println(s"relations after: ${relations}")
+                    } // rel =>
+                ) // foreach
+            } // tup =>
+        ) // foreach
+        if (DEBUG) print(s"final relations: ${relations}")
+    
+        return this
     }
 
-    /*  Expands a graph backward along particular edge types relative to
+    /*  Expands a graph forward along particular edge types relative to
      *  another graph.
      *  Updates the schema and NodeTypes as necessary:
      *      -   if the argument graph contains schema entry (s,p,o)
@@ -251,23 +346,7 @@ class Graph{
      *          NodeType and (s,p,o) will be added to the schema of
      *          the calling object
      */
-    def extendBackward( g : Graph, _edgeTypes : ElementType *) : Graph = 
-    {
-        extend(g,BACKWARD,_edgeTypes:_*)
-    }
-
-    /*  Expands a graph along particular edge types relative to
-     *  another graph.
-     *  Updates the schema and NodeTypes as necessary:
-     *      -   if the argument graph contains schema entry (s,p,o)
-     *          where s is a NodeType in the calling object
-     *          and p is an edgeType in the _edgeTypes argument,
-     *          then s.empty or o.empty will be added to the calling object as a
-     *          NodeType depending on whether dir is FORWARD or BACKWARD
-     *          respectively and (s,p,o) will be added to the schema of the
-     *          calling object
-     */
-    private def extend( g : Graph, dir : Int, _edgeTypes : ElementType *) : Graph = 
+    def extend( g : Graph, dir : Int, _edgeTypes : ElementType *) : Graph = 
     {
         val edgeTypes =                           /* Assume that we want to 
                                                    * expand on all  edge types
@@ -287,11 +366,29 @@ class Graph{
         g.schema.filter( (subjType,predType,objType) =>
             {
                 
-                schemaFilter(
-                    dir,subjType,objType)  &&     /* We only want subject/object
-                                                   * NodeTypes that are part of
-                                                   * this graph.
-                                                   */
+                dir match{
+
+                    case FORWARD => nodeTypeMap.contains(subjType)
+
+                                                   /* The subject NodeType is
+                                                    * the relevant NodeType if
+                                                    * we want to extend forward.
+                                                    *We only want the schema
+                                                    * tuples for object NodeTypes
+                                                    * relevant to this graph
+                                                    */
+    
+                    case BACKWARD => nodeTypeMap.contains(objType)
+
+                                                   /* The subject NodeType is
+                                                    * the relevant NodeType if
+                                                    * we want to extend forward.
+                                                    *We only want the schema
+                                                    * tuples for object NodeTypes
+                                                    * relevant to this graph
+                                                    */
+    
+                }  &&
                 edgeTypes.map(typ=>typ.name
                     ).contains(predType)          /* We only want schema tuples
                                                    * with EdgeTypes appropriate
@@ -305,7 +402,16 @@ class Graph{
                  * Then we need the subject NodeType for the other graph.
                  */
     
-                val thisSType = getSOType(tup,g,dir,SUBJ)  
+                val thisSType = dir match{
+                    case FORWARD =>
+                            nodeTypes(                  
+                                nodeTypeMap(tup._1)) /* We know that the subject
+                                                      * NodeType exists in this
+                                                      * graph because we filtered
+                                                      * for it.
+                    case BACKWARD =>
+                            getOrMakeElementType(tup,g,NODE,SUBJ) 
+                }
                 val otherSType = g.nodeTypes(nodeTypeMap(tup._1))
 
                 /* Next, we need an EdgeType for this graph to extend with,
@@ -320,7 +426,7 @@ class Graph{
                  * It may or may not exist in this graph. 
                  */
     
-                val thisOType = getSOType(tup,g,dir,OBJ)
+                val thisOType = getOrMakeElementType(tup,g,NODE,OBJ)             
                 val otherOType = g.nodeTypes(nodeTypeMap(tup._3))
 
                 /* Update the schema of this graph to allow any new relation
@@ -334,13 +440,23 @@ class Graph{
                  * calling object graph
                  */
 
-                g.relations.filter( rel => 
-                            relationFilter(
-                                rel,
-                                dir,
-                                (thisSType,otherSType),
-                                (thisPType,otherPType),
-                                (thisOType,otherOType))
+                g.relations.filter( rel =>
+                    {
+                        thisSType.contains(rel.subj)  &&    /* We only want to
+                                                             * add paths to this
+                                                             * graph from nodes
+                                                             * which already
+                                                             * exist in it
+                                                             */
+                        otherPType.contains(rel.pred) &&
+                                                            /* Filtering for the
+                                                             * ElementType that
+                                                             * we found previous
+                                                             */
+    
+                        otherOType.contains(rel.obj)        /* Again, filtering.
+                                                             */
+                    }
                 ).foreach( rel =>
                     {
                         if (DEBUG) println(s"relations before: ${relations}")
@@ -357,82 +473,7 @@ class Graph{
         return this
     }
 
-    private def relationFilter(
-        rel : Relation,
-        dir : Int,
-        sTypes : (ElementType,ElementType),
-        pTypes : (ElementType,ElementType),
-        oTypes : (ElementType,ElementType) ) =
-    {
-
-        val (thisSType,otherSType) = sTypes
-        val (thisPType,otherPType) = pTypes
-        val (thisOType,otherOType) = oTypes
-
-        dir match
-        {
-            case FORWARD =>
-            {
-            	thisSType.contains(rel.subj)  &&    /* We only want to
-            	                                     * add paths to this
-            	                                     * graph from nodes
-            	                                     * which already
-            	                                     * exist in it
-            	                                     */
-            	otherPType.contains(rel.pred) &&
-            	                                    /* Filtering for the
-            	                                     * ElementType that
-            	                                     * we found previous
-            	                                     */
-            	
-            	otherOType.contains(rel.obj)        /* Again, filtering.
-            	                                     */
-            } // case FORWARD
-            case BACKWARD =>
-            {
-            	otherSType.contains(rel.subj)  &&   /* Filtering for the
-            	                                     * ElementType that
-            	                                     * we found previous
-            	                                     */
-                                
-            	otherPType.contains(rel.pred) &&
-            	                                    /* Again, filtering.
-            	                                     */
-            	
-            	thisOType.contains(rel.obj)         /* We only want to
-            	                                     * add paths to this
-            	                                     * graph from nodes
-            	                                     * which already
-            	                                     * exist in it
-            	                                     */
-            } // case BACKWARD
-        } // match dir    
-    }
-    /* We want to filter the tuples in the shema for NodeTypes which
-     * are relevant to this graph (i.e. - which the graph contains.)
-     */
-    private def schemaFilter(dir : Int,subjType : String,objType : String) =
-    {
-        dir match{
-
-            /* The subject NodeType is the relevant NodeType
-             * if we want to extend FORWARD.
-             */
-            case FORWARD => nodeTypeMap.contains(subjType)
-                                           
-            /* The object NodeType is the relevant NodeType
-             * if we want to extend BACKWARD.
-             */
-            case BACKWARD => nodeTypeMap.contains(objType)        
-        }
-    }
-
-    /* This method either retrieves or creates a NodeType to extend
-     * to based on the direction that we're trying to extend in and
-     * which end of the extension we're concerned with.
-     */
     private def getSOType(  tup : Tuple3[String,String,String],
-                            g   : Graph,
                             dir : Int,
                             typ : Int ) =
     {
@@ -444,23 +485,21 @@ class Graph{
                                                       * graph because we filtered
                                                       * for it.
                                                       */
-                case OBJ => getOrMakeElementType(
+                case OBJ = > getOrMakeElementType(
                                 tup,g,NODE,OBJ)      /* We may have to make a new
                                                       * ElementType if we're
                                                       * expanding forward and we
-                                                      * need an object NodeType
-                                                      */
+                                                      * need an object NodeType             
             } // case FORWARD
                     
             case BACKWARD => typ match{
                 case SUBJ => getOrMakeElementType(  
-                                tup,g,NODE,SUBJ)      /* We may have to make a new
+                                tup,g,NODE,SUBJ      /* We may have to make a new
                                                       * ElementType if we're
                                                       * expanding forward and we
                                                       * need an object NodeType
-                                                      */
                 case OBJ => nodeTypes(
-                                nodeTypeMap(tup._3)) /* We know that the object
+                                nodeTypeMap(tup._3)  /* We know that the object
                                                       * NodeType exists in this
                                                       * graph because we filtered
                                                       * for it.
@@ -469,16 +508,6 @@ class Graph{
             } // case BACKWARD
         }
     }
-
-    /* A method to either get an element type from the appropriate
-     * elementTypes vector (i.e. - either nodeTypes or edgeTypes)
-     * or make an element type and add it to the elementTypes.
-     * tup is the schema tuple we're using to direct our elementType
-     * retrieval, g is the graph we're extending with respect to,
-     * typ1 tells us if were wanting NodeType or ElementType objects,
-     * and typ2 tells us whether we're concerned with the subj, pred,
-     * or obj part of the tuple.
-     */
     private def getOrMakeElementType(
         tup  : Tuple3[String,String,String],
         g    : Graph,
@@ -488,13 +517,11 @@ class Graph{
         
         val (map,gMap,types,gTypes) = typ1 match
         {
-            /*We want nodeTypes and nodeTypeMaps if were dealing with NODE*/
             case NODE => (  nodeTypeMap,
                             g.nodeTypeMap,
                             nodeTypes,
                             g.nodeTypes)
 
-            /*We want edgeTypes and edgeTypeMaps if were dealing with EDGE*/
             case EDGE => (  edgeTypeMap,
                             g.edgeTypeMap,
                             edgeTypes,
@@ -666,7 +693,4 @@ object GraphTesterOne extends App{
 
     val g8 = movieDB(Person).extendForward(movieDB,ActedIn)
     print(s"g8 : \n${g8}")
-
-    val g9 = movieDB(Movie).extendBackward(movieDB,ActedIn)
-    print(s"g9 : \n${g9}")
 }

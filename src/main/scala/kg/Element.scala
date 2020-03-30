@@ -2,21 +2,18 @@ package kg
 
 import scala.collection.mutable.HashMap
 
-class Element {
+class Element(_id : Int) {
 
-    var label : String = null
-    def getLabel() : Option[String] =
-    {
-        if (label == null) return None
-        else return Some(label)
-    }
-    
-    
-    def setLabel(label : String) = {this.label = label}
-    
-    val properties = HashMap[String,Primitive]()
+    val properties = HashMap[String,Primitive]("id"->id)
 
+    def id = _id
+    
     def getProperties() : HashMap[String,Primitive] = properties.clone()
+    
+    def setProperties(properties : HashMap[String,Primitive]) =
+    {
+       this.properties.addAll(properties)
+    }
 
     def apply(property : String) : Primitive =
     {
@@ -26,38 +23,36 @@ class Element {
         }
     } // apply
 
-    def copy() : Element =
+    override def toString() : String =
     {
-        val e = new Element()
-        e.setProperties(properties)
-        return e    
+        var str = ""
+        val maxLength = properties.map( (k,v) => k.length).max + 1
+        // TODO : FIND A PROPER MAX PROPERTY FIELD WIDTH VALUE INSTEAD OF 4
+        var sep = "+" + ("-"*(maxLength+4) + "+") * properties.count( _ => true)
+        str = str + sep + "\n+"
+        var args = List[Any]()
+        for (property <- properties) {
+            val formatter = property._2 match{
+                // TODO : Properly match cases...
+                case _ => "d"
+            }
+            str = str + "%" + maxLength + "s : %" + formatter + "+"
+            args = args :+ property._1  
+            args = args :+ property._2 
+        }
+        str = str + "\n"
+        str = str + sep
+        return str.format(args:_*)
     }
-    
-    def setProperties(properties : HashMap[String,Primitive]) =
-    {
-        if (properties != null){
-            this.properties.clear()
-            this.properties.addAll(properties)
-        } // if
-    }
-
-    def isType(et : ElementType) : Boolean = et.contains(this)
-        
-    
 }
 
-class Node extends Element{
-    
-}
-class Edge extends Element{
-    var edgeType : EdgeType = null
-    def makeType(edgeType : EdgeType) = {this.edgeType = edgeType}
-}
+class Node(id : Int) extends Element(id){}
+
+class Edge(id : Int) extends Element(id){}
 
 object ElementTester extends App{
 
-    class Road extends Node{}
-    class Road2 extends Node{}
-    class Intersection extends Edge{}
-        
+    class Road(id : Int) extends Node(id){}
+    class Road2(id : Int) extends Node(id){}
+    class Intersection(id : Int) extends Edge(id){}
 }
