@@ -5,7 +5,7 @@ import scala.collection.immutable.Vector
 
 class Graph{
 
-    val DEBUG = true
+    val DEBUG = false
 
     val NODE = 1
     val EDGE = 2
@@ -299,35 +299,37 @@ class Graph{
                                                    */
             }
         ).foreach( tup =>
-            {
+            {    
 
                 /* First, we need a NodeType for this graph to extend to.
                  * Then we need the subject NodeType for the other graph.
                  */
     
                 val thisSType = getSOType(tup,g,dir,SUBJ)  
-                val otherSType = g.nodeTypes(nodeTypeMap(tup._1))
-
+                val otherSType = g.nodeTypes(g.nodeTypeMap(tup._1))
+                
                 /* Next, we need an EdgeType for this graph to extend with,
                  * It may or may not yet exist for this graph.
                  * Then we need the EdgeType for the other graph.
                  */
             
                 val thisPType = getOrMakeElementType(tup,g,EDGE,PRED)
-                val otherPType = g.edgeTypes(edgeTypeMap(tup._2))
+                val otherPType = g.edgeTypes(g.edgeTypeMap(tup._2))
 
                 /* Now, we need the object NodeTypes. 
                  * It may or may not exist in this graph. 
                  */
     
                 val thisOType = getSOType(tup,g,dir,OBJ)
-                val otherOType = g.nodeTypes(nodeTypeMap(tup._3))
+                val otherOType = g.nodeTypes(g.nodeTypeMap(tup._3))
 
                 /* Update the schema of this graph to allow any new relation
                  * types we may need
                  */
                 updateSchema((thisSType,thisPType,thisOType))
-    
+
+                if (DEBUG) println(s"schema after: \n${schema}")
+
                 /* Finally, we'll filter the relations from the argument
                  * graph by the ElementTypes we found above, and we'll add
                  * the elements and relations that need to be added into the
@@ -343,11 +345,14 @@ class Graph{
                                 (thisOType,otherOType))
                 ).foreach( rel =>
                     {
-                        if (DEBUG) println(s"relations before: ${relations}")
-                        thisPType.add(rel.pred)
-                        thisOType.add(rel.obj)
+                        if (DEBUG) println(s"""rel: \n(${rel.subj},\n${rel.pred},\n${rel.obj})
+                                            |relationFilter(...)
+                                            |${relationFilter(rel,dir,(thisSType,otherSType),(thisPType,otherPType),(thisOType,otherOType))}""".stripMargin)
+                        dir match{
+                            case FORWARD  => {thisPType.add(rel.pred);thisOType.add(rel.obj )}
+                            case BACKWARD => {thisPType.add(rel.pred);thisSType.add(rel.subj)}
+                        } // match
                         addRelation(rel)
-                        if (DEBUG) println(s"relations after: ${relations}")
                     } // rel =>
                 ) // foreach
             } // tup =>
@@ -362,17 +367,26 @@ class Graph{
         dir : Int,
         sTypes : (ElementType,ElementType),
         pTypes : (ElementType,ElementType),
-        oTypes : (ElementType,ElementType) ) =
+        oTypes : (ElementType,ElementType) ) : Boolean =
     {
 
         val (thisSType,otherSType) = sTypes
         val (thisPType,otherPType) = pTypes
         val (thisOType,otherOType) = oTypes
 
+        if (DEBUG) println(s"""from the relation filter, ${if (dir==FORWARD) "FORWARD" else "BACKWARD"}
+                            |rel.subj: \n${rel.subj}
+                            |rel.pred: \n${rel.pred}
+                            |rel.obj: \n${rel.obj}
+            				|otherSType.contains(rel.subj) : ${otherSType.contains(rel.subj)}
+            				|otherPType.contains(rel.pred) : ${otherPType.contains(rel.pred)}
+                            |thisOType.contains(rel.obj) : ${thisOType.contains(rel.obj)}""".stripMargin)
         dir match
         {
             case FORWARD =>
             {
+                if (DEBUG) println("forward in relation filter")
+                return (
             	thisSType.contains(rel.subj)  &&    /* We only want to
             	                                     * add paths to this
             	                                     * graph from nodes
@@ -385,11 +399,18 @@ class Graph{
             	                                     * we found previous
             	                                     */
             	
-            	otherOType.contains(rel.obj)        /* Again, filtering.
+            	otherOType.contains(rel.obj) )       /* Again, filtering.
             	                                     */
             } // case FORWARD
             case BACKWARD =>
             {
+                if (DEBUG) {
+                    println("backward in the relation filter")
+                    println(s"otherSType.contains(rel.subj): ${otherSType.contains(rel.subj)}")
+                    println(s"otherPType.contains(rel.pred): ${otherPType.contains(rel.pred)}")
+                    println(s"thisOType.contains(rel.obj): ${thisOType.contains(rel.obj)}")
+                }
+                return (
             	otherSType.contains(rel.subj)  &&   /* Filtering for the
             	                                     * ElementType that
             	                                     * we found previous
@@ -399,7 +420,7 @@ class Graph{
             	                                    /* Again, filtering.
             	                                     */
             	
-            	thisOType.contains(rel.obj)         /* We only want to
+            	thisOType.contains(rel.obj) )        /* We only want to
             	                                     * add paths to this
             	                                     * graph from nodes
             	                                     * which already
@@ -664,9 +685,93 @@ object GraphTesterOne extends App{
     println(s"g6 : \n$g6")
     println(s"g7 : \n$g7")
 
+    /*
     val g8 = movieDB(Person).extendForward(movieDB,ActedIn)
     print(s"g8 : \n${g8}")
-
+    */
+    
     val g9 = movieDB(Movie).extendBackward(movieDB,ActedIn)
-    print(s"g9 : \n${g9}")
+    print(s"extending the Movie elements backward along ActedIn : \n${g9}")
+}
+
+object GraphTesterExtend extends App{
+
+    class Person(id : Int) extends Node(id){}
+    object Person extends NodeType("Person"){}
+    
+    Person.addProperty(
+        ("name",Int)
+    )    
+
+    val p1 = Person(("name",1))
+    val p2 = Person(("name",2))
+    val p3 = Person(("name",3))
+    val p4 = Person(("name",4))
+    val p5 = Person(("name",5))
+
+    class Movie(id : Int) extends Node(id){}
+    object Movie extends NodeType("movie"){}
+    
+    Movie.addProperty(("title",Int))
+
+    val m1 = Movie(
+        ("title",1)
+    )
+    val m2 = Movie(
+        ("title",2)
+    )
+
+    class ActedIn(id : Int) extends Edge(id){}
+    object ActedIn extends EdgeType("acted_in"){}
+    
+    ActedIn.addProperty(("role",Int))
+    
+    val r1  = ActedIn(("role",0))
+    val r21 = ActedIn(("role",1))
+    val r22 = ActedIn(("role",2))
+    val r41 = ActedIn(("role",3))
+    val r42 = ActedIn(("role",4))
+    
+    class Directed(id : Int) extends Edge(id){}
+    object Directed extends EdgeType("directed"){}
+    
+    Directed.addProperty("something",Int)
+    val d3 = Directed(("something",3))
+    val d5 = Directed(("something",5))
+    
+    
+    val rel1        = Relation(p1,r1,m1)
+    val rel2_21_1   = Relation(p2,r21,m1)
+    val rel2_22_2   = Relation(p2,r22,m2)
+    val rel4_41_1   = Relation(p4,r41,m1)
+    val rel4_42_2   = Relation(p4,r42,m2)
+
+    val rel3_3_1    = Relation(p3,d3,m1)
+    val rel5_5_2    = Relation(p5,d5,m2)
+    
+    val movieDB = new Graph()
+    
+    movieDB.updateSchema(
+        (Person,ActedIn,Movie),
+        (Person,Directed,Movie)
+    )
+    movieDB.addNodeTypes(Person,Movie)
+    movieDB.addEdgeTypes(ActedIn,Directed)
+    movieDB.addRelations(
+                rel1  ,             
+    			rel2_21_1,   
+    			rel2_22_2,   
+    			rel4_41_1,   
+    			rel4_42_2,  			
+    			rel3_3_1 ,    
+    			rel5_5_2)
+
+    
+    val g8 = movieDB(Person).extendForward(movieDB,ActedIn)
+    print(s"g8 : \n${g8}")
+    
+
+    println(s"movieDB: \n${movieDB}")
+    val g9 = movieDB(Movie).extendBackward(movieDB,ActedIn)
+    print(s"extending the Movie elements backward along ActedIn : \n${g9}")
 }
