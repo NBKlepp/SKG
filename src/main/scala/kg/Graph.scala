@@ -700,54 +700,65 @@ object GraphTesterExtend extends App{
     object Person extends NodeType("Person"){}
     
     Person.addProperty(
+        //("name",String)
         ("name",Int)
     )    
 
-    val p1 = Person(("name",1))
-    val p2 = Person(("name",2))
-    val p3 = Person(("name",3))
-    val p4 = Person(("name",4))
-    val p5 = Person(("name",5))
+    val p1 = Person(("name","Charlie Sheen"))
+    val p2 = Person(("name","Martin Sheen"))
+    val p3 = Person(("name","Oliver Stone"))
+    val p4 = Person(("name","Michel Douglas"))
+    val p5 = Person(("name","Rob Reiner"))
 
     class Movie(id : Int) extends Node(id){}
     object Movie extends NodeType("movie"){}
     
+    //Movie.addProperty(("title",String))
     Movie.addProperty(("title",Int))
 
     val m1 = Movie(
-        ("title",1)
+        ("title","Wall Street")
     )
     val m2 = Movie(
-        ("title",2)
+        ("title","The American President")
     )
 
     class ActedIn(id : Int) extends Edge(id){}
     object ActedIn extends EdgeType("acted_in"){}
     
+    //ActedIn.addProperty(("role",String))
     ActedIn.addProperty(("role",Int))
     
+    class Directed(id : Int) extends Edge(id){}
+    object Directed extends EdgeType("directed"){}
+    
+    /*
+    Directed.addProperty("something",Int)
+
     val r1  = ActedIn(("role",0))
     val r21 = ActedIn(("role",1))
     val r22 = ActedIn(("role",2))
     val r41 = ActedIn(("role",3))
     val r42 = ActedIn(("role",4))
     
-    class Directed(id : Int) extends Edge(id){}
-    object Directed extends EdgeType("directed"){}
-    
-    Directed.addProperty("something",Int)
     val d3 = Directed(("something",3))
     val d5 = Directed(("something",5))
     
-    
-    val rel1        = Relation(p1,r1,m1)
-    val rel2_21_1   = Relation(p2,r21,m1)
-    val rel2_22_2   = Relation(p2,r22,m2)
-    val rel4_41_1   = Relation(p4,r41,m1)
-    val rel4_42_2   = Relation(p4,r42,m2)
+    val p3 = Person(("name","Oliver Stone"))
+    val p5 = Person(("name","Rob Reiner"))
 
-    val rel3_3_1    = Relation(p3,d3,m1)
-    val rel5_5_2    = Relation(p5,d5,m2)
+    val m1 = Movie(("title","Wall Street"))
+    val m2 = Movie(("title","The American President"))
+    */
+
+    val rel3_3_1    = Relation(p3,Directed(),m1)
+    val rel5_5_2    = Relation(p5,Directed(),m2)
+    
+    val rel1        = Relation(p1,ActedIn(("role","Bud Fox")),m1)
+    val rel2_21_1   = Relation(p2,ActedIn(("role","Carl Fox")),m1)
+    val rel2_22_2   = Relation(p2,ActedIn(("role","A.J. MacInerney")),m2)
+    val rel4_41_1   = Relation(p4,ActedIn(("role","President Andrew Shepherd")),m2)
+    val rel4_42_2   = Relation(p4,ActedIn(("role","Gordon Gekko")),m1)
     
     val movieDB = new Graph()
     
@@ -766,12 +777,16 @@ object GraphTesterExtend extends App{
     			rel3_3_1 ,    
     			rel5_5_2)
 
-    
-    val g8 = movieDB(Person).extendForward(movieDB,ActedIn)
-    print(s"g8 : \n${g8}")
-    
 
     println(s"movieDB: \n${movieDB}")
-    val g9 = movieDB(Movie).extendBackward(movieDB,ActedIn)
-    print(s"extending the Movie elements backward along ActedIn : \n${g9}")
+
+    print(s"movieDB(Person) : \n${movieDB(Person)}")
+    print(s"""movieDB(Person).extendForward(movieDB,ActedIn): 
+            |${movieDB(Person).extendForward(movieDB,ActedIn)}""".stripMargin)
+
+
+    println("movieDB(Movie): \n${movieDB(Movie)}")
+    println(s"""movieDB(Movie).extendBackward(movieDB,ActedIn): 
+            |${movieDB(Movie).extendBackward(movieDB,ActedIn)}""".stripMargin)
+
 }

@@ -23,27 +23,28 @@ class Element(_id : Int) {
         }
     } // apply
 
+    def getOrElse(property : String, value : Primitive) : Primitive =
+    {
+        properties.get(property) match{
+            case Some(i) => return i
+            case None => return value
+        }
+    }
+
+    def iterator = properties.iterator
+        
     override def toString() : String =
     {
-        var str = ""
-        val maxLength = properties.map( (k,v) => k.length).max + 1
-        // TODO : FIND A PROPER MAX PROPERTY FIELD WIDTH VALUE INSTEAD OF 4
-        var sep = "+" + ("-"*(maxLength+4) + "+") * properties.count( _ => true)
-        str = str + sep + "\n+"
-        var args = List[Any]()
-        for (property <- properties) {
-            val formatter = property._2 match{
-                // TODO : Properly match cases...
-                case _ => "d"
-            }
-            str = str + "%" + maxLength + "s : %" + formatter + "+"
-            args = args :+ property._1  
-            args = args :+ property._2 
-        }
-        str = str + "\n"
-        str = str + sep
-        return str.format(args:_*)
+        var str = "+"
+        val _properties = properties.toList
+        var border = "+"
+        for (property <- _properties) {
+            border = border + "-" * ( property._1.length + (s"${property._2}").length + 5) + "+"
+            str = str + s" ${property._1} : ${property._2} +"
+        } // for
+        return border + "\n" + str + "\n" + border
     }
+    
 }
 
 class Node(id : Int) extends Element(id){}
