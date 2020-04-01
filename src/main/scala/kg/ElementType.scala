@@ -232,9 +232,13 @@ trait ElementType(_name : String) {
         val maxFieldWidths = Array.ofDim[Int](_schema.length)
         var maxValueLength = 0
         for ( property <- 0 until _schema.length ) {
-            maxValueLength = elements.map( element => 
-                s"${element.getOrElse(_schema(property)._1,"")}".length
-            ).max
+            maxValueLength = {
+            if (elements.length > 0) 
+                elements.map( element => 
+                    s"${element.getOrElse(_schema(property)._1,"")}".length
+                ).max
+            else 0
+            }
             maxFieldWidths(property) = max(name.length,max(maxValueLength + 2,_schema(property)._1.length+2))
         }
         var str = "+"
