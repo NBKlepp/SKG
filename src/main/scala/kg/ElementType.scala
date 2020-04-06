@@ -28,6 +28,7 @@ trait ElementType(_name : String) {
         val element = new Element(numElements)
         element.setProperties(properties)
         elements = elements :+ element
+        numElements = numElements+1
         element
     }
     
@@ -101,6 +102,72 @@ trait ElementType(_name : String) {
         SelectThing
     }
 
+    def selectOR  ( criteria : Tuple2[String,Primitive=>Boolean] *) : ElementType =
+    {
+        object SelectThing
+            extends ElementType(_name)
+
+        SelectThing.addSchema(schema)
+
+        for (element <- elements){
+            val add = criteria.foldLeft(false)((x,criterion) =>
+            {
+                val (property,predicate) = criterion
+                try{
+                    x || predicate(element(property))
+                }catch{
+                    case _ => x || false
+                }
+            })
+            if (add) SelectThing.add(element)
+        }
+    /*
+        for (property <- properties){
+        	schema.get(property._1) match{
+        	    case Some(i)    =>
+        	        {            
+        	            for (element <- elements) {
+        	                try{
+        	                    if (property._2(element(property._1))) SelectThing.add(element)
+        	                }
+        	                catch{
+        	                    case _ => 
+        	                }
+        	            }
+        	        }
+        	    case None       =>
+        	        {
+        	            println(s"Invalid select property")
+        	            println(s"${property} not in schema for ${_name}")
+        	        }
+        	} // match
+        }
+    */
+        SelectThing
+    }
+
+    def selectAND  ( criteria : Tuple2[String,Primitive=>Boolean] *) : ElementType =
+    {
+        object SelectThing
+            extends ElementType(_name)
+
+        SelectThing.addSchema(schema)
+    
+        for (element <- elements) {
+            val add = criteria.foldLeft(true)((x,criterion) => {
+                val (property,pred) = criterion
+                try{
+                    x && pred(element(property))
+                }catch{
+                    case _ => x && false
+                }
+            })
+            if (add) SelectThing.add(element)
+        }
+    
+        SelectThing
+    }
+        
     /*
      *  Return a projection of this ElementType projected
      *  onto a subset of its properties.
@@ -142,6 +209,8 @@ trait ElementType(_name : String) {
         return UnionThing
     }
 
+    def OR (other : ElementType) = this union other
+    
     def intersect(other : ElementType) : ElementType =
     {
         object IntersectThing extends ElementType(_name)
@@ -161,6 +230,8 @@ trait ElementType(_name : String) {
         return IntersectThing
     }
 
+    def AND(other : ElementType) = this intersect other
+    
     def minus(other : ElementType) : ElementType =
     {
         object MinusThing extends ElementType(_name)
@@ -181,6 +252,8 @@ trait ElementType(_name : String) {
         
     }
 
+    def BUT_NOT(other : ElementType) = this minus other
+    
     def prettyPrintElements   ( name : String,
                                 elements : Vector[HashMap[String,Primitive]],
                                 properties : String*
@@ -278,6 +351,10 @@ trait ElementType(_name : String) {
                 border                                         + "\n" + 
                 str 
     } // toString
+
+    def +(other : ElementType) = this union other
+    def *(other : ElementType) = this intersect other
+    def -(other : ElementType) = this minus other
 }
 
 class NodeType(name : String) extends ElementType(name){}
@@ -332,6 +409,13 @@ object ElementTypeTesterOne extends App{
     println(s"Sel1:\n${Sel1}")
     println(s"Sel2:\n${Sel2}")
 
+    val Sel6 = Road.selectOR(   ("lanes",_==4),
+                                ("dir",_==1) )
+    print(s"Sel6 : \n${Sel6}")
+    val Sel7 = Road.selectAND(  ("dir",_==1),
+                                ("type",_==3))
+    print(s"Sel7 : \n${Sel7}")
+    
     println("Projecting...")
     val Proj1 = Road.project("lanes","dir")
     val Proj2 = Sel1.project("type")
@@ -344,17 +428,21 @@ object ElementTypeTesterOne extends App{
     val Sel3 = Road.select("lanes",_==4)
     val Sel4 = Road.select("lanes",_==2)
     val Sel5 = Road.select("lanes",_==3)
-    val Uni1 = Sel3.union(Sel4).union(Sel5)
+    val Uni1 = Sel3 union Sel4  union Sel5
+    val Uni2 = Sel3 + Sel4 + Sel5
     println(s"Uni1: \n${Uni1}")
-
+    println(s"Uni2: \n${Uni2}")
+    println(s"Uni3: \n${Sel3 OR Sel4 OR Sel5}")
+    
     println("Intersecting...")
     val Int1 = Sel1.intersect(Sel2)
     println(s"Int1:\n${Int1}")
+    println(s"Int1:\n${Sel1 AND Sel2}")
 
     println("Minusing...")
     val Min1 = Road.minus(Sel1)
     println(s"Min1:\n${Min1}")
-
+    println(s"Min1:\n${Road BUT_NOT Sel1}")
     val r6 = Road(("type",3),("lanes",2),("dir",1))
     val r7 = Road(("name",2),("lanes",2),("dir",1))
 

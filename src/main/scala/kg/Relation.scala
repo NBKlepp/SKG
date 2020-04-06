@@ -11,6 +11,26 @@ class Relation(_subj : Element, _pred : Element, _obj : Element){
     def pred = _pred
     def obj  = _obj
 
+    def canEqual(a: Any) = a.isInstanceOf[Relation]
+    
+    override def equals(that : Any) =
+    {
+        that match{
+            case that : Relation => {
+                this.canEqual(that)     &&
+                this.subj == that.subj &&
+                this.pred == that.pred &&
+                this.obj == that.obj
+            }
+            case _ => false
+        }
+    }
+
+    override def hashCode : Int =
+    {
+        var prime = 31
+        return prime + subj.hashCode + pred.hashCode + obj.hashCode
+    }
     override def toString() : String = 
     {
         if (DEBUG) {

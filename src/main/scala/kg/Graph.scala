@@ -52,7 +52,8 @@ class Graph{
         for(tup <- _schema if (!schema.contains(tup))) schema = schema :+ tup
     }
     
-    def addSchema(_schema : => Vector[Tuple3[ElementType,ElementType,ElementType]]) =
+    def addSchema(
+        _schema : => Vector[Tuple3[ElementType,ElementType,ElementType]]) =
     {
         for((s,p,o) <- _schema if (!schema.contains((s,p,o))))
             schema = schema :+ (s.name,p.name,o.name)
@@ -127,6 +128,16 @@ class Graph{
             relations = relations :+ relation
     }
 
+    def relate( tups : Tuple3[Element,Element,Element] *) =
+    {
+        
+        addRelations(
+            tups.map( tup => {
+                 Relation(tup._1,tup._2,tup._3)            
+            }):_*
+        )   
+    }
+    
     def getRelations() : Vector[Relation] = relations ++ Vector[Relation]()
     
     /*
@@ -242,6 +253,16 @@ class Graph{
         ((this(nt1)).extendForward(et))(nt1,et,nt2)   
     }
 
+    def paths( schemas : Tuple3[ElementType,ElementType,ElementType]*) : Graph =
+    {
+        var g = new Graph()
+        if ( schemas.length ==0 ) return g
+        for ( (nt1,et,nt2) <- schemas ) g = g + paths(nt1,et,nt2)
+        
+        return g
+           
+    }
+
     /*  Expands a graph forward along particular edge types relative to
      *  another graph.
      *  Updates the schema and NodeTypes as necessary:
@@ -313,7 +334,10 @@ class Graph{
      *          respectively and (s,p,o) will be added to the schema of the
      *          calling object
      */
-    private def extend( g : Graph, dir : Int, _edgeTypes : ElementType *) : Graph = 
+    private def extend(
+        g           : Graph,
+        dir         : Int,
+        _edgeTypes  : ElementType *) : Graph = 
     {
         val edgeTypes =                           /* Assume that we want to 
                                                    * expand on all  edge types
@@ -384,14 +408,22 @@ class Graph{
                                 (thisOType,otherOType))
                 ).foreach( rel =>
                     {
-                        /* Update the schema of this graph to allow any new relation
-                         * types we may need
+                        /* Update the schema of this graph to allow any new
+                         * relation types we may need
                          */
                         updateSchema((thisSType,thisPType,thisOType))
                         
                         dir match{
-                            case FORWARD  => {thisPType.add(rel.pred);thisOType.add(rel.obj )}
-                            case BACKWARD => {thisPType.add(rel.pred);thisSType.add(rel.subj)}
+                            case FORWARD  =>
+                            {
+                                thisPType.add(rel.pred)
+                                thisOType.add(rel.obj )
+                            }
+                            case BACKWARD =>
+                            {
+                                thisPType.add(rel.pred)
+                                thisSType.add(rel.subj)
+                            }
                         } // match
                         addRelation(rel)
                     } // rel =>
@@ -402,136 +434,112 @@ class Graph{
         return this
     }
 
-    /* Extends this graph forward by following it's edges to the nodes in the NodeTypes included in the arguments relative to it's base underlying object*/
+    /* Extends this graph forward by following it's edges to the nodes in the
+     * NodeTypes included in the arguments relative to it's base underlying
+     * object
+     */
     def followForward( _nodeTypes : ElementType * ) : Graph =
     {
         followForward(this.baseUnderLying,_nodeTypes:_*)
     }
 
-    /*
-     *  TODO : Possibly need to verify that the element types are valid??
+    /* Extends this graph forward by following it's edges to the nodes in the
+     * NodeTypes included in the arguments relative to some other graph
      */
-    /* Extends this graph forward by following it's edges to the nodes in the NodeTypes included in the arguments relative to some other graph*/
     def followForward(g : Graph,_nodeTypes : ElementType *) : Graph = 
     {
         follow(g,FORWARD,_nodeTypes:_*)
     }
 
-    /* Extends this graph backward by following it's edges to the nodes in the NodeTypes included in the arguments relative to its base underlying graph*/
+    /* Extends this graph backward by following it's edges to the nodes in the
+     * NodeTypes included in the arguments relative to its base underlying graph
+     */
     def followBackward( _nodeTypes : ElementType * ) : Graph =
     {
         followBackward(this.baseUnderLying,_nodeTypes:_*)
     }
 
 
-    /* Extends this graph backward by following it's edges to the nodes in the NodeTypes included in the arguments relative to some other graph*/
+    /* Extends this graph backward by following it's edges to the nodes in the
+     * NodeTypes included in the arguments relative to some other graph*/
     def followBackward(g : Graph,_nodeTypes : ElementType *) : Graph =
     {
         follow(g,BACKWARD,_nodeTypes:_*)
     } // followBackward
 
-    /* Extends this graph by following it's edges to the nodes in the NodeTypes included in the arguments relative to some other graph*/
-    def follow(g : Graph, dir : Int, _nodeTypes : ElementType *) : Graph =
+    /* Extends this graph by following it's edges to the nodes in the NodeTypes
+     * included in the arguments relative to some other graph*/
+    def follow(g : Graph, dir : Int, _nodeTypes : ElementType *) : Graph = 
     {
-        if (DEBUG) {
-            println(s"following ${if (dir == FORWARD) "FORWARD" else "BACKWARD"}")
-            println(s"_nodeTypes: ${_nodeTypes}")
-            println(s"g: \n${g}")
-            println(s"g(_nodeTypes:_*): \n${g(_nodeTypes:_*)}")
-        }
         val nodeTypes = {
             if (_nodeTypes.length==0) g.nodeTypes
             else g(_nodeTypes:_*).nodeTypes
         } // nodeTypes
-                                                        /* First we filter the
-                                                         * schema of the graph
-                                                         * argument object :
-                                                         * We only want to ext-
-                                                         * end backward from Edge
-                                                         * Types that are in this
-                                                         * graph and to subj
-                                                         * types relevant to the
-                                                         * method call.
-                                                         */
-        g.schema.filter(
-            (subjType,predType,objType) => {
-                if (DEBUG) {
-                    println(s"subjType: ${subjType}")
-                    println(s"predType: ${predType}")
-                    println(s"objType: ${objType}")
-                    println(s"this.edgeTypeMap.contains(predType): ${this.edgeTypeMap.contains(predType)}")
-                    println(s"schemaFilterFollow(nodeTypes,dir,subjType,objType): ${schemaFilterFollow(nodeTypes,dir,subjType,objType)}")
-                }
-                
+
+        g.schema.filter( (subjType,predType,objType) => {
                 this.edgeTypeMap.contains(predType) &&
                 schemaFilterFollow(nodeTypes,dir,subjType,objType)
             } // =>
         ).foreach( (subjType,predType,objType) =>
-            {
-                if (DEBUG) println("Something")
-
-                //TODO : Make sure that anytime a graph schema tuple is added to a graph that the types are added as well...
+            {             
                 val thisSType = this.nodeTypeMap.get(subjType) match{
                     case Some(i) => this.nodeTypes(i)
                     case None => g.nodeTypes(g.nodeTypeMap(subjType)).empty()
                 }
     
-                val thisPType = this.edgeTypes(edgeTypeMap(predType))   // we know that the edgetype exists because we filtered for it
+                val thisPType = this.edgeTypes(edgeTypeMap(predType))
     
                 val thisOType = this.nodeTypeMap.get(objType) match{
                     case Some(i) => this.nodeTypes(i)
                     case None => g.nodeTypes(g.nodeTypeMap(objType)).empty()
                 }
-                
+    
                 g.relations.filter( rel =>
                     relationFilterFollow(rel,dir,thisPType,nodeTypes)
                 ).foreach( rel =>
                     {
-                    dir match{
-                        case FORWARD =>
-                        {
-                            addNodeTypes(thisOType)
-                            thisOType.add(rel.obj)
-                            if (thisSType.contains(rel.subj)) {updateSchema((thisSType,thisPType,thisOType));addRelation(rel)}
-                                                                //add the relation if this graph contains the subject of the relation
-                                                                //otherwise only add the object of the relation to this graph        
-                        }
-                        case BACKWARD =>
-                        {
-                            addNodeTypes(thisSType)
-                            thisSType.add(rel.subj)
-                            if (thisOType.contains(rel.obj)) {updateSchema((thisSType,thisPType,thisOType));addRelation(rel)}
-                                                                //add the relation if this graph contains the object of the relation
-                                                                //otherwise only add the object of the relation to this graph
-                        } // BACKWARD
-                    } // match
-                    }
+                    	dir match{
+                    	    case FORWARD =>
+                    	    {
+                                addNodeTypes(thisOType)
+                    	        thisOType.add(rel.obj)
+                    	        if (thisSType.contains(rel.subj)) {
+                    	            updateSchema((thisSType,thisPType,thisOType))
+                    	            addRelation(rel)
+                    	        }                                  
+                    	    }
+                    	    case BACKWARD =>
+                    	    {
+                    	        addNodeTypes(thisSType)
+                    	        thisSType.add(rel.subj)
+                    	        if (thisOType.contains(rel.obj)) {
+                    	                                
+                    	            updateSchema((thisSType,thisPType,thisOType))
+                    	            addRelation(rel)
+                    	        }                                   
+                    	    } // BACKWARD
+                    	} // match
+                    } // => 
                 ) // foreach
             } // =>
-        ) // foreach
+        ) // foreach 
         return this
     }
-    
-    private def relationFilterFollow(rel : Relation, dir : Int, thisPType : ElementType, nodeTypes: Vector[ElementType]) : Boolean =
+       
+    private def relationFilterFollow(
+        rel       : Relation,
+        dir       : Int,
+        thisPType : ElementType,
+        nodeTypes : Vector[ElementType]
+    ) : Boolean =
     {
-        if (DEBUG) {
-            println(s"rel.subj: \n${rel.subj}")
-            println(s"rel.pred: \n${rel.pred}")
-            println(s"rel.obj: \n${rel.obj}")
-            println(s"thisPType: \n${thisPType}")
-            println(s"nodeTypes:")
-            nodeTypes.foreach(nodeType=>println(nodeType))
-            println(s"thisPType.contains(rel.pred): ${thisPType.contains(rel.pred)}")
-            dir match{
-                case BACKWARD => println(s"nodeTypes.map(x=>x.getElements()).flatten.contains(rel.subj): ${nodeTypes.map(x=>x.getElements()).flatten.contains(rel.subj)}")
-                case FORWARD => println(s"nodeTypes.map(x=>x.getElements()).flatten.contains(rel.obj): ${nodeTypes.map(x=>x.getElements()).flatten.contains(rel.obj)}")
-            } // match
-        }
         return thisPType.contains(rel.pred) && 
         (
             dir match{
-                case BACKWARD => nodeTypes.map(x=>x.getElements()).flatten.contains(rel.subj)
-                case FORWARD => nodeTypes.map(x=>x.getElements()).flatten.contains(rel.obj)
+                case BACKWARD =>
+                    nodeTypes.map(x=>x.getElements()).flatten.contains(rel.subj)
+                case FORWARD =>
+                    nodeTypes.map(x=>x.getElements()).flatten.contains(rel.obj)
             } // match
         )
     }
@@ -593,16 +601,6 @@ class Graph{
         objType : String
     ) =
     {
-        if (DEBUG) {
-            println(s"nodeTypes: ${nodeTypes}")
-            for(nodeType<-nodeTypes)println(nodeType)
-            println(s"subjType: ${subjType}")
-            println(s"objType: ${objType}")
-            dir match{
-                case FORWARD  => println(s"nodeTypes.map(typ => typ.name).contains(objType): ${nodeTypes.map(typ => typ.name).contains(objType)}")
-                case BACKWARD => println(s"nodeTypes.map(typ => typ.name).contains(subjType): ${nodeTypes.map(typ => typ.name).contains(subjType)}")
-            }
-        }
         dir match{
 
             /* The object NodeType is the relevant NodeType
@@ -668,7 +666,7 @@ class Graph{
                     
             case BACKWARD => typ match{
                 case SUBJ => getOrMakeElementType(  
-                                tup,g,NODE,SUBJ)      /* We may have to make a new
+                                tup,g,NODE,SUBJ)     /* We may have to make a new
                                                       * ElementType if we're
                                                       * expanding forward and we
                                                       * need an object NodeType
@@ -728,8 +726,9 @@ class Graph{
             case Some(i) => types(i)  /* i.e. - the type existed
                                        */
     
-            case None =>              /* i.e. - We need to make a new, empty NodeType for 
-                                       * nodes to extend to and add it to this graph
+            case None =>              /* i.e. - We need to make a new, empty
+                                       * NodeType for nodes to extend to and
+                                       * add it to this graph
                                        */                                    
             {
                 val eType = gTypes(gMap(tupPart)).empty()
@@ -742,6 +741,43 @@ class Graph{
         } // match
     } // getOrMakeElementType
     
+    def union( other : Graph ) : Graph =
+    {
+        val g = new Graph()
+        
+        for( nodeType <- nodeTypes ) other.nodeTypeMap.get(nodeType.name) match{
+            case Some(i) => g.addNodeTypes( nodeType + other.nodeTypes(i) )
+            case None => g.addNodeTypes(nodeType)
+        } // for
+
+        for( nodeType <- other.nodeTypes) nodeTypeMap.get(nodeType.name) match{
+            case Some(i) => g.addNodeTypes( nodeType + nodeTypes(i) )
+            case None => g.addNodeTypes(nodeType) 
+        } // for
+    
+        for( edgeType <- edgeTypes ) other.edgeTypeMap.get(edgeType.name) match{
+            case Some(i) => g.addEdgeTypes( edgeType + other.nodeTypes(i) )
+            case None => g.addEdgeTypes(edgeType)
+        }
+
+        for( edgeType <- other.edgeTypes ) edgeTypeMap.get(edgeType.name) match{
+            case Some(i) => g.addEdgeTypes( edgeType + nodeTypes(i) )
+            case None => g.addEdgeTypes(edgeType)
+        }
+
+        g.updateSchema(schema:_*)
+        g.updateSchema(other.schema:_*)
+    
+        val _relations = other.relations.foldLeft( relations ) ( (x,y) => {
+            if (!(x.contains(y))) x:+y else x
+        })
+    
+        g.addRelations(_relations:_*)
+
+        return g
+    }
+
+    def +(other : Graph) = this union other
     
     override def toString() : String =
     {
@@ -750,11 +786,16 @@ class Graph{
         str = str + "\t\tEDGES:\n"
         str = str + edgeTypes.foldLeft("")((x,y)=>x+y.toString()+"\n")
         str = str + "\t\tRELATIONS:\n"
-        for (nt1 <- nodeTypes;et <-edgeTypes;nt2<-nodeTypes ) str = str + relationTable(nt1,et,nt2) + "\n"
+        for (nt1 <- nodeTypes;et <-edgeTypes;nt2<-nodeTypes )
+            str = str + relationTable(nt1,et,nt2) + "\n"
         return str
     }
     
-    private def relationTable(nt1 : ElementType, et : ElementType, nt2 : ElementType) : String =
+    private def relationTable(
+        nt1 : ElementType,
+        et  : ElementType,
+        nt2 : ElementType
+    ) : String =
     {
         val relations = this.relations.filter( relation =>
             {
@@ -923,11 +964,21 @@ object GraphTesterExtend extends App{
     val rel3_3_1    = Relation(OliverStone,Directed(),WallStreet)
     val rel5_5_2    = Relation(RobReiner,Directed(),AmericanPres)
     
-    val rel1        = Relation(CharlieSheen,ActedIn(("role","Bud Fox")),WallStreet)
-    val rel2_21_1   = Relation(MartinSheen,ActedIn(("role","Carl Fox")),WallStreet)
-    val rel2_22_2   = Relation(MartinSheen,ActedIn(("role","A.J. MacInerney")),AmericanPres)
-    val rel4_41_1   = Relation(MichaelDouglas,ActedIn(("role","President Andrew Shepherd")),AmericanPres)
-    val rel4_42_2   = Relation(MichaelDouglas,ActedIn(("role","Gordon Gekko")),WallStreet)
+    val rel1        = Relation( CharlieSheen,
+                                ActedIn(("role","Bud Fox")),
+                                WallStreet)
+    val rel2_21_1   = Relation( MartinSheen,
+                                ActedIn(("role","Carl Fox")),
+                                WallStreet)
+    val rel2_22_2   = Relation( MartinSheen,
+                                ActedIn(("role","A.J. MacInerney")),
+                                AmericanPres)
+    val rel4_41_1   = Relation( MichaelDouglas,
+                                ActedIn(("role","President Andrew Shepherd")),
+                                AmericanPres)
+    val rel4_42_2   = Relation( MichaelDouglas,
+                                ActedIn(("role","Gordon Gekko")),
+                                WallStreet)
     
     val movieDB = new Graph()
     
@@ -1115,5 +1166,98 @@ object GraphTesterPaths extends App{
     println(s"\nmovieDB: \n${movieDB}")
     println(s"\n************getting the paths about Michael Douglas's movies******************\n")
     println(s"${movieDB.paths(Person.select("name",_=="Michael Douglas"),ActedIn,Movie)}")
+    println(s"\n*****the movies either Michael Douglas or Martin Sheen acted in **************\n")
+    println(s"${movieDB.paths(  Person.select( "name",_=="Michael Douglas") + 
+                                Person.select("name",_=="Martin Sheen")         ,
+                                ActedIn                                         ,
+                                Movie                                                         )}")
+    println(s"\n*****the movies either Michael Douglas acted in or Oliver Stone Directed******\n")
+    println(s"${movieDB.paths(  (Person.select("name",_=="Michael Douglas"),ActedIn ,Movie),
+                                (Person.select("name",_=="Oliver Stone"   ),Directed,Movie)    )}")
+}
+
+
+object GraphTesterPaths2 extends App{
+
+    class Person(id : Int) extends Node(id){}
+    object Person extends NodeType("Person"){}
     
+    Person.addProperty(
+        //("name",String)
+        ("name",Int)
+    )    
+
+    val CharlieSheen = Person(("name","Charlie Sheen"))
+    val MartinSheen = Person(("name","Martin Sheen"))
+    val OliverStone = Person(("name","Oliver Stone"))
+    val MichaelDouglas = Person(("name","Michael Douglas"))
+    val RobReiner = Person(("name","Rob Reiner"))
+
+    class Movie(id : Int) extends Node(id){}
+    object Movie extends NodeType("movie"){}
+    
+    //Movie.addProperty(("title",String))
+    Movie.addProperty(("title",Int))
+
+    val WallStreet = Movie(
+        ("title","Wall Street")
+    )
+    val AmericanPres = Movie(
+        ("title","The American President")
+    )
+
+    class ActedIn(id : Int) extends Edge(id){}
+    object ActedIn extends EdgeType("acted_in"){}
+    
+    //ActedIn.addProperty(("role",String))
+    ActedIn.addProperty(("role",Int))
+    
+    class Directed(id : Int) extends Edge(id){}
+    object Directed extends EdgeType("directed"){}
+
+    val movieDB = new Graph()
+    
+    movieDB.updateSchema(
+        (Person,ActedIn,Movie),
+        (Person,Directed,Movie)
+    )
+    
+    movieDB.addNodeTypes(Person,Movie)
+    movieDB.addEdgeTypes(ActedIn,Directed)
+
+    movieDB.relate( (OliverStone                    				,
+                        Directed()                  				,
+                            WallStreet              				),
+    				(RobReiner                      				,
+                        Directed()                  				,
+                            AmericanPres            				),
+    				(CharlieSheen                   				,
+                        ActedIn(("role","Bud Fox")) 				,
+                            WallStreet              				),
+    				(MartinSheen                            		,
+                        ActedIn(("role","Carl Fox"))        		,
+                            WallStreet                      		),
+    				(MartinSheen                            		,
+                        ActedIn(("role","A.J. MacInerney")) 		,
+                            AmericanPres                            ),
+    				(MichaelDouglas                                 ,
+                        ActedIn(("role","President Andrew Shepherd")),
+                            AmericanPres                            ),
+    				(MichaelDouglas                                 ,
+                        ActedIn(("role","Gordon Gekko")             ),
+                            WallStreet)
+                )
+
+    println(s"\n***************the movieDB graph database, as a reference*********************\n")
+    println(s"\nmovieDB: \n${movieDB}")
+    println(s"\n************getting the paths about Michael Douglas's movies******************\n")
+    println(s"${movieDB.paths(Person.select("name",_=="Michael Douglas"),ActedIn,Movie)}")
+    println(s"\n*****the movies either Michael Douglas or Martin Sheen acted in **************\n")
+    println(s"${movieDB.paths(  Person.select( "name",_=="Michael Douglas") + 
+                                Person.select("name",_=="Martin Sheen")         ,
+                                ActedIn                                         ,
+                                Movie                                                         )}")
+    println(s"\n*****the movies either Michael Douglas acted in or Oliver Stone Directed******\n")
+    println(s"${movieDB.paths(  (Person.select("name",_=="Michael Douglas"),ActedIn ,Movie),
+                                (Person.select("name",_=="Oliver Stone"   ),Directed,Movie)    )}")
 }
