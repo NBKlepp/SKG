@@ -198,7 +198,8 @@ movieDB.paths(
 The results of our queries are below:
 
 The movieDB graph database, as a reference...
-    
+
+```    
 movieDB: 
 NODES: 
 +------------------------+
@@ -403,4 +404,4 @@ RELATIONS:
 
 (Person)--[directed]-->(movie)
 (2)--[0]-->(0)
-    
+```
