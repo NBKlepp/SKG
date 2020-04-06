@@ -88,7 +88,7 @@ Next we will create a graph object, update the schema of the graph to reflect
 the relational schema of people to movies via the Directed and ActedIn
 edges:
 
-'''
+```
 val movieDB = new Graph()
 
 movieDB.updateSchema(
