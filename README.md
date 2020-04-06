@@ -193,7 +193,7 @@ movieDB.paths(
         Movie
     )(Movie)
 )
-'''
+```
     
 The results of our queries are below:
 
