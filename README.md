@@ -197,7 +197,7 @@ movieDB.paths(
     
 The results of our queries are below:
 
-***************the movieDB graph database, as a reference*********************
+The movieDB graph database, as a reference...
     
 	movieDB: 
 			NODES: 
@@ -268,7 +268,7 @@ The results of our queries are below:
     (2)--[0]-->(0)
     (4)--[1]-->(1)
 
-************getting the paths about Michael Douglas's movies******************
+Getting the paths about Michael Douglas's movies...
 
             NODES:
     +------------------------+
@@ -306,7 +306,7 @@ The results of our queries are below:
     (3)--[3]-->(1)
     (3)--[4]-->(0)
 
-*****the movies either Michael Douglas or Martin Sheen acted in **************
+The movies either Michael Douglas or Martin Sheen acted in ...
 
             NODES:
     +------------------------+
@@ -352,7 +352,7 @@ The results of our queries are below:
     (3)--[3]-->(1)
     (3)--[4]-->(0)
 
-*****the movies either Michael Douglas acted in or Oliver Stone Directed******
+The movies either Michael Douglas acted in or Oliver Stone Directed...
 
             NODES:
     +------------------------+
