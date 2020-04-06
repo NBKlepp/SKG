@@ -24,8 +24,8 @@ they direct via the Directed edges which have no properties.
 Here is an example of creating a Person node type:
 
 ```
-    class Person(id : Int) extends Node(id){}
-    object Person extends NodeType("Person"){}
+class Person(id : Int) extends Node(id){}
+object Person extends NodeType("Person"){}
 ```
 
 The `Person` class extends the `Node` class, which means it has a node id and it
@@ -108,12 +108,12 @@ movieDB.relate(
         OliverStone,
         Directed(),
         WallStreet
-    ),                            	    
+    ),
 	(
         RobReiner,
         Directed(),
         AmericanPres
-    ),                          	
+    ),
 	(
         CharlieSheen, 
         ActedIn(("role","Bud Fox")),
@@ -147,7 +147,7 @@ select the nodes from the `Person` node type where the node's `name` property
 have "Michael Douglas" for their value, i.e. - the Michael Douglas nodes:
 
 ```
-    Person.select("name",_=="Michael Douglas")
+Person.select("name",_=="Michael Douglas")
 ```
 Next, we can query for the subgraph of the movie data base with paths relating
 the Michael Douglas node to movie nodes that he acted in:
@@ -193,7 +193,8 @@ movieDB.paths(
         Movie
     )(Movie)
 )
-
+'''
+    
 The results of our queries are below:
 
 ***************the movieDB graph database, as a reference*********************
