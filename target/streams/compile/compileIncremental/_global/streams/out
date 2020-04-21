@@ -1,0 +1,33 @@
+[0m[[0m[0mdebug[0m] [0m[0m[0m
+[0m[[0m[0mdebug[0m] [0m[0mInitial source changes: [0m
+[0m[[0m[0mdebug[0m] [0m[0m	removed:Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0m	added: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0m	modified: Set(/Users/aimanmunir/Desktop/SKG/src/main/scala/kg/ElementType.scala)[0m
+[0m[[0m[0mdebug[0m] [0m[0mInvalidated products: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mExternal API changes: API Changes: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mModified binary dependencies: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mInitial directly invalidated classes: Set(kg.OSM_Test$.Way, kg.EmptyProp$.Freeway, kg.OSM_Test, kg.OSM_Test$.Has, kg.SampleTestHashMap$.Road, kg.SampleTestHashMap$.Has, kg.SampleTestHashMap$.Station, kg.SampleTestHashMap$.Way, kg.InvalidPropertyException, kg.SampleTestHashMap$.Intersects, kg.EmptyProp, kg.OSM_Test$.Nodes, kg.SampleTestHashMap$.Freeway, kg.OSM_Test$.Road, kg.OSM_Test$.Intersects, kg.EdgeType, kg.ElementType, kg.SampleTestHashMap, kg.NodeType)[0m
+[0m[[0m[0mdebug[0m] [0m[0m[0m
+[0m[[0m[0mdebug[0m] [0m[0mSources indirectly invalidated by:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	product: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0m	binary dep: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0m	external source: Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mAll initially invalidated classes: Set(kg.OSM_Test$.Way, kg.EmptyProp$.Freeway, kg.OSM_Test, kg.OSM_Test$.Has, kg.SampleTestHashMap$.Road, kg.SampleTestHashMap$.Has, kg.SampleTestHashMap$.Station, kg.SampleTestHashMap$.Way, kg.InvalidPropertyException, kg.SampleTestHashMap$.Intersects, kg.EmptyProp, kg.OSM_Test$.Nodes, kg.SampleTestHashMap$.Freeway, kg.OSM_Test$.Road, kg.OSM_Test$.Intersects, kg.EdgeType, kg.ElementType, kg.SampleTestHashMap, kg.NodeType)[0m
+[0m[[0m[0mdebug[0m] [0m[0mAll initially invalidated sources:Set(/Users/aimanmunir/Desktop/SKG/src/main/scala/kg/ElementType.scala)[0m
+[0m[[0m[0mdebug[0m] [0m[0mInitial set of included nodes: kg.OSM_Test$.Way, kg.EmptyProp$.Freeway, kg.OSM_Test, kg.OSM_Test$.Has, kg.SampleTestHashMap$.Road, kg.SampleTestHashMap$.Has, kg.SampleTestHashMap$.Station, kg.SampleTestHashMap$.Way, kg.InvalidPropertyException, kg.SampleTestHashMap$.Intersects, kg.EmptyProp, kg.OSM_Test$.Nodes, kg.SampleTestHashMap$.Freeway, kg.OSM_Test$.Road, kg.OSM_Test$.Intersects, kg.EdgeType, kg.ElementType, kg.SampleTestHashMap, kg.NodeType[0m
+[0m[[0m[0mdebug[0m] [0m[0mIncluding kg.NodeType by kg.ElementType[0m
+[0m[[0m[0minfo[0m] [0m[0mCompiling 1 Scala source to /Users/aimanmunir/Desktop/SKG/target/scala-0.22/classes ...[0m
+[0m[[0m[0mdebug[0m] [0m[0mReturning already retrieved and compiled bridge: /Users/aimanmunir/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-sbt-bridge/0.22.0-RC1/dotty-sbt-bridge-0.22.0-RC1.jar.[0m
+[0m[[0m[0mdebug[0m] [0m[0mReturning already retrieved and compiled bridge: /Users/aimanmunir/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-sbt-bridge/0.22.0-RC1/dotty-sbt-bridge-0.22.0-RC1.jar.[0m
+[0m[[0m[0mdebug[0m] [0m[0mCalling Dotty compiler with arguments  (CompilerInterface):[0m
+[0m[[0m[0mdebug[0m] [0m[0m	-noindent[0m
+[0m[[0m[0mdebug[0m] [0m[0m	-classpath[0m
+[0m[[0m[0mdebug[0m] [0m[0m	/Users/aimanmunir/Desktop/SKG/target/scala-0.22/classes:/Users/aimanmunir/Desktop/SKG/lib/scalation_mathematics_2.13-1.7.jar:/Users/aimanmunir/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/ch/epfl/lamp/dotty-library_0.22/0.22.0-RC1/dotty-library_0.22-0.22.0-RC1.jar:/Users/aimanmunir/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/modules/scala-parser-combinators_2.13/1.1.2/scala-parser-combinators_2.13-1.1.2.jar:/Users/aimanmunir/Library/Caches/Coursier/v1/https/repo1.maven.org/maven2/org/scala-lang/scala-library/2.13.1/scala-library-2.13.1.jar[0m
+[0m[[0m[0mdebug[0m] [0m[0mScala compilation took 10.008586927 s[0m
+[0m[[0m[0mdebug[0m] [0m[0mDone compiling.[0m
+[0m[[0m[0mdebug[0m] [0m[0mNew invalidations:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mInitial set of included nodes: [0m
+[0m[[0m[0mdebug[0m] [0m[0mPreviously invalidated, but (transitively) depend on new invalidations:[0m
+[0m[[0m[0mdebug[0m] [0m[0m	Set()[0m
+[0m[[0m[0mdebug[0m] [0m[0mNo classes were invalidated.[0m

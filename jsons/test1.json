@@ -1,0 +1,337 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.56.1002 b121d216",
+  "osm3s": {
+    "timestamp_osm_base": "2020-04-01T12:55:02Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 33241803,
+      "lat": 37.8050417,
+      "lon": -122.4034504,
+      "tags": {
+        "highway": "traffic_signals",
+        "turn_restrictions": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1659365989,
+      "lat": 37.7189074,
+      "lon": -122.3994062
+    },
+    {
+      "type": "node",
+      "id": 29892598,
+      "lat": 37.7169496,
+      "lon": -122.3989008
+    },
+    {
+      "type": "node",
+      "id": 65292114,
+      "lat": 37.7989484,
+      "lon": -122.417328
+    },
+    {
+      "type": "node",
+      "id": 54891208,
+      "lat": 37.7705805,
+      "lon": -122.3911917,
+      "tags": {
+        "highway": "traffic_signals",
+        "traffic_signals": "signal"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65280072,
+      "lat": 37.7845276,
+      "lon": -122.4709958,
+      "tags": {
+        "highway": "traffic_signals",
+        "source": "data.sfgov.org"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65280377,
+      "lat": 37.7336837,
+      "lon": -122.426389,
+      "tags": {
+        "highway": "traffic_signals"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65280432,
+      "lat": 37.7336038,
+      "lon": -122.4341379,
+      "tags": {
+        "highway": "traffic_signals"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65280473,
+      "lat": 37.7348747,
+      "lon": -122.4399937,
+      "tags": {
+        "highway": "traffic_signals"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65280848,
+      "lat": 37.7445991,
+      "lon": -122.4535131,
+      "tags": {
+        "highway": "traffic_signals"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65281097,
+      "lat": 37.7778043,
+      "lon": -122.4003134,
+      "tags": {
+        "highway": "traffic_signals"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65281164,
+      "lat": 37.7746045,
+      "lon": -122.4259102,
+      "tags": {
+        "highway": "traffic_signals",
+        "turn_restrictions": "no"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65281218,
+      "lat": 37.7718656,
+      "lon": -122.4233255,
+      "tags": {
+        "highway": "traffic_signals",
+        "traffic_signals": "signal"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65281357,
+      "lat": 37.7492642,
+      "lon": -122.4049553,
+      "tags": {
+        "highway": "traffic_signals"
+      }
+    },
+    {
+      "type": "node",
+      "id": 65281429,
+      "lat": 37.7852059,
+      "lon": -122.3940468,
+      "tags": {
+        "highway": "traffic_signals"
+      }
+    },
+    {
+      "type": "node",
+      "id": 6914375077,
+      "lat": 37.7491773,
+      "lon": -122.4088112
+    },
+    {
+      "type": "node",
+      "id": 6914375078,
+      "lat": 37.7492266,
+      "lon": -122.4087585
+    },
+    {
+      "type": "node",
+      "id": 6914375082,
+      "lat": 37.7495038,
+      "lon": -122.4087888
+    },
+    {
+      "type": "node",
+      "id": 4766860250,
+      "lat": 37.7495404,
+      "lon": -122.4087926
+    },
+    {
+      "type": "node",
+      "id": 65310720,
+      "lat": 37.7258251,
+      "lon": -122.4565987
+    },
+    {
+      "type": "node",
+      "id": 1711296779,
+      "lat": 37.7258804,
+      "lon": -122.4567315
+    },
+    {
+      "type": "way",
+      "id": 738401717,
+      "nodes": [
+        6914375077,
+        6914375078,
+        6914375082,
+        4766860250,
+        65290336
+      ],
+      "tags": {
+        "cycleway:right": "shared_lane",
+        "highway": "tertiary",
+        "name": "Bryant Street",
+        "oneway": "yes",
+        "sidewalk": "right",
+        "source:imagery": "Bing",
+        "tiger:cfcc": "A41",
+        "tiger:county": "San Francisco, CA",
+        "tiger:name_type": "St"
+      }
+    },
+    {
+      "type": "way",
+      "id": 5004035,
+      "nodes": [
+        33242031,
+        65292114
+      ],
+      "tags": {
+        "highway": "residential",
+        "name": "Macondray Lane"
+      }
+    },
+    {
+      "type": "way",
+      "id": 254758127,
+      "nodes": [
+        65351272,
+        7231694047,
+        65334048,
+        7231694048,
+        65307251,
+        65299389,
+        65345273,
+        65292114,
+        65312672
+      ],
+      "tags": {
+        "highway": "residential",
+        "name": "Leavenworth Street",
+        "tiger:cfcc": "A41",
+        "tiger:county": "San Francisco, CA",
+        "tiger:name_base": "Leavenworth",
+        "tiger:name_type": "St"
+      }
+    },
+    {
+      "type": "way",
+      "id": 254308549,
+      "nodes": [
+        1659365989,
+        432660036
+      ],
+      "tags": {
+        "NHS": "STRAHNET",
+        "bicycle": "no",
+        "hgv": "designated",
+        "hgv:national_network": "yes",
+        "highway": "motorway",
+        "lanes": "5",
+        "maxspeed": "55 mph",
+        "name": "James Lick Freeway",
+        "oneway": "yes",
+        "ref": "US 101",
+        "source:hgv:national_network": "Title 23: Highways Part 658 http://ecfr.gpoaccess.gov/cgi/t/text/text-idx?c=ecfr&rgn=div5&view=text&node=23:1.0.1.7.33&idno=23"
+      }
+    },
+
+    {
+      "type": "way",
+      "id": 123741436,
+      "nodes": [
+        1378905417,
+        259454995,
+        432659987,
+        30033699,
+        767822058,
+        432659988,
+        1970807574,
+        432659989,
+        30033700,
+        432659990,
+        767822060,
+        432659991,
+        432659992,
+        432659994,
+        767822061,
+        29892598
+      ],
+      "tags": {
+        "NHS": "STRAHNET",
+        "bicycle": "no",
+        "hgv": "designated",
+        "hgv:national_network": "yes",
+        "highway": "motorway",
+        "lanes": "5",
+        "maxspeed": "55 mph",
+        "name": "James Lick Freeway",
+        "oneway": "yes",
+        "ref": "US 101",
+        "source:hgv:national_network": "Title 23: Highways Part 658 http://ecfr.gpoaccess.gov/cgi/t/text/text-idx?c=ecfr&rgn=div5&view=text&node=23:1.0.1.7.33&idno=23"
+      }
+    },
+
+    {
+      "type": "way",
+      "id": 5071582,
+      "nodes": [
+        29892598,
+        432660001,
+        1659365989
+      ],
+      "tags": {
+        "NHS": "STRAHNET",
+        "bicycle": "no",
+        "hgv": "designated",
+        "hgv:national_network": "yes",
+        "highway": "motorway",
+        "lanes": "5",
+        "maxspeed": "55 mph",
+        "name": "James Lick Freeway",
+        "oneway": "yes",
+        "ref": "US 101",
+        "source:hgv:national_network": "Title 23: Highways Part 658 http://ecfr.gpoaccess.gov/cgi/t/text/text-idx?c=ecfr&rgn=div5&view=text&node=23:1.0.1.7.33&idno=23"
+      }
+    },
+
+    {
+      "type": "way",
+      "id": 667396980,
+      "nodes": [
+        65310720,
+        1711296779,
+        1711296938,
+        65365347,
+        1711296565,
+        1711296710,
+        65365349
+      ],
+      "tags": {
+        "highway": "residential",
+        "name": "San Ramon Way",
+        "sidewalk": "both",
+        "tiger:cfcc": "A41",
+        "tiger:county": "San Francisco, CA",
+        "tiger:name_base": "San Ramon",
+        "tiger:name_type": "Way"
+      }
+    }
+  ]
+}

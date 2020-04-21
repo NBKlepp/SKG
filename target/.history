@@ -1,0 +1,45 @@
+run
+traceLevel in run := 0
+traceLevel in run
+traceLevel in run;
+compile
+run
+compile
+run
+2
+run
+exit
+run
+exit
+run
+exit
+compil
+compile
+exit
+run
+exit
+run
+exit
+run
+exit
+run
+exit
+run
+last update 
+exit
+run
+exit
+run
+bgRun
+run
+exitsss
+run
+8E9, 6.914375082E9, 4.76686025E9, 6.5290336E7), tags -> HashMap(name -> Bryant Street, tiger:cfcc -> A41, highway -> tertiary, tiger:county -> San Francisco, CA, source:imagery -> Bing, cycleway:right -> shared_lane, sidewalk -> right, tiger:name_type -> St, oneway -> yes)), Map(type -> way, id -> 5004035.0, nodes -> List(3.3242031E7, 6.5292114E7), tags -> Map(highway -> residential, name -> Macondray Lane)), Map(type -> way, id -> 2.54758127E8, nodes -> List(6.5351272E7, 7.231694047E9, 6.5334048E7, 7.231694048E9, 6.5307251E7, 6.5299389E7, 6.5345273E7, 6.5292114E7, 6.5312672E7), tags -> HashMap(name -> Leavenworth Street, tiger:cfcc -> A41, highway -> residential, tiger:name_base -> Leavenworth, tiger:county -> San Francisco, CA, tiger:name_type -> St)), Map(type -> way, id -> 2.54308549E8, nodes -> List(1.659365989E9, 4.32660036E8), tags -> HashMap(name -> James Lick Freeway, NHS -> STRAHNET, maxspeed -> 55 mph, source:hgv:national_network -> Title 23: Highways Part 658 http://ecfr.gpoaccess.gov/cgi/t/text/text-idx?c=ecfr&rgn=div5&view=text&node=23:1.0.1.7.33&idno=23, highway -> motorway, ref -> US 101, lanes -> 5, bicycle -> no, hgv -> designated, oneway -> yes, hgv:national_network -> yes)), Map(type -> way, id -> 1.23741436E8, nodes -> List(1.378905417E9, 2.59454995E8, 4.32659987E8, 3.0033699E7, 7.67822058E8, 4.32659988E8, 1.970807574E9, 4.32659989E8, 3.00337E7, 4.3265999E8, 7.6782206E8, 4.32659991E8, 4.32659992E8, 4.32659994E8, 7.67822061E8, 2.9892598E7), tags -> HashMap(name -> James Lick Freeway, NHS -> STRAHNET, maxspeed -> 55 mph, source:hgv:national_network -> Title 23: Highways Part 658 http://ecfr.gpoaccess.gov/cgi/t/text/text-idx?c=ecfr&rgn=div5&view=text&node=23:1.0.1.7.33&idno=23, highway -> motorway, ref -> US 101, lanes -> 5, bicycle -> no, hgv -> designated, oneway -> yes, hgv:national_network -> yes)), Map(type -> way, id -> 5071582.0, nodes -> List(2.9892598E7, 4.32660001E8, 1.659365989E9), tags -> HashMap(name -> James Lick Freeway, NHS -> STRAHNET, maxspeed -> 55 mph, source:hgv:national_network -> Title 23: Highways Part 658 http://ecfr.gpoaccess.gov/cgi/t/text/text-idx?c=ecfr&rgn=div5&view=text&node=23:1.0.1.7.33&idno=23, highway -> motorway, ref -> US 101, lanes -> 5, bicycle -> no, hgv -> designated, oneway -> yes, hgv:national_network -> yes)), Map(type -> way, id -> 6.6739698E8, nodes -> List(6.531072E7, 1.711296779E9, 1.711296938E9, 6.5365347E7, 1.711296565E9, 1.71129671E9, 6.5365349E7), tags -> HashMap(name -> San Ramon Way, tiger:cfcc -> A41, highway -> residential, tiger:name_base -> San Ramon, tiger:county -> San Francisco, CA, sidewalk -> both, tiger:name_type -> Way))))
+mao ended
+***************  MapDB graph database  *********************
+MapDB: 
+ant Street    + 0  + 7.38401717E8 + San Francisco, CA +
++--------------------+----+--------------+-------------------+
+run
+bgRun
+run

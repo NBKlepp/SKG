@@ -127,6 +127,12 @@ class Graph{
         for(relation <-_relations if (!relations.contains(relation)))
             relations = relations :+ relation
     }
+    
+    def addRelations(_relations : Vector[Relation]) =
+    {
+	for(relation <-_relations if (!relations.contains(relation)))
+    		     relations = relations :+ relation
+    }
 
     def relate( tups : Tuple3[Element,Element,Element] *) =
     {
@@ -819,7 +825,7 @@ class Graph{
         nodes,
 */
 
-object GraphTesterOne extends App{
+/*object GraphTesterOne extends App{
 
     class Person(id : Int) extends Node(id){}
     object Person extends NodeType("Person"){}
@@ -1261,3 +1267,4 @@ object GraphTesterPaths2 extends App{
     println(s"${movieDB.paths(  (Person.select("name",_=="Michael Douglas"),ActedIn ,Movie),
                                 (Person.select("name",_=="Oliver Stone"   ),Directed,Movie)    )}")
 }
+*/

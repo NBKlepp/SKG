@@ -1,0 +1,5 @@
+[0m[[0m[33mwarn[0m] [0m[0m[33m-- Warning: /Users/aimanmunir/Desktop/SKG/src/main/scala/kg/ElementType.scala:129:8 [0m[0m
+[0m[[0m[33mwarn[0m] [0m[0m[33m129 |[0m        SelectThing.addSchema(schema)[0m
+[0m[[0m[33mwarn[0m] [0m[0m    |        [33m^[0m[0m
+[0m[[0m[33mwarn[0m] [0m[0m    |        Line is indented too far to the right, or a `{` is missing[0m
+[0m[[0m[33mwarn[0m] [0m[0mone warning found[0m
